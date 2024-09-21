@@ -16,12 +16,12 @@ struct Header
   uint16_t version;       //version number initially 1
   char manufacturer[16];  //name of the manufacturer
   char shortName[16];     //name of the cart in MAME style
-  char longName[32];      //long descriptive name
+  char longName[128];      //long descriptive name
   uint32_t year;          //year of publishing in BCD
   uint32_t genre;         //game genere
   uint32_t asicType;      //type of the hardware present on the cartridge
 
-  uint8_t filler1[428];   //fill to 512
+  uint8_t filler1[332];   //fill to 512
 
   Entry romP;
   Entry romT;
