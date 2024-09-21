@@ -6,7 +6,7 @@ namespace mameDB
 struct RomEntry
 {
 	char const* name;
-	uint64_t		hashdata;
+	char const* hashdata;
 	uint32_t    offset;
 	uint32_t    length;
 	uint32_t    flags;
