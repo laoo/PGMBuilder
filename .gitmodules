@@ -1,0 +1,3 @@
+[submodule "libextern/zip"]
+	path = libextern/zip
+	url = https://github.com/kuba--/zip.git
