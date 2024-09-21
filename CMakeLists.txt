@@ -9,6 +9,10 @@ set( CMAKE_CXX_STANDARD 20 )
 
 add_executable( PGMBuilder
   main.cpp
+  ProgramOptions.cpp
+  ProgramOptions.hpp
+  bulkConvert.cpp
+  convert.cpp
 )
 
 target_include_directories( PGMBuilder PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libextern/zip/src )
