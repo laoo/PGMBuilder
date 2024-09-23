@@ -42,7 +42,10 @@ int registerGame( RomEntry const* romEntry, char const* name, char const* fullNa
       {
         gGamesMap.insert( { hash, {} } );
       }
-      gGamesMap[hash].push_back( gameEntry );
+      if ( r.flags != ROMENTRYTYPE_PGM )
+      {
+        gGamesMap[hash].push_back( gameEntry );
+      }
     }
   }
 

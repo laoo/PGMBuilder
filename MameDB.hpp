@@ -31,6 +31,7 @@ enum
 	ROMENTRYTYPE_END,           // sentinel marking the end of a ROM definition
 	ROMENTRYTYPE_CONTINUE,      // continues loading the current ROM file at a different offset
 	ROMENTRYTYPE_IGNORE,        // ignores a portion of the current ROM file
+	ROMENTRYTYPE_PGM,           // PGM roms to be ignored
 };
 
 #define ROM_REVERSEMASK             0x00000040          /* reverse the byte order within a group */

@@ -25,6 +25,15 @@ namespace mameDB
 
 #include "MameROMs.hpp"
 
+// entry for PGM ROMS that are on the PGM motherboards
+ROM_START( pgm )
+ROMX_LOAD( "pgm_p02s.u20", 0x00000, 0x020000, CRC( 78c15fa2 ) SHA1( 885a6558e022602cc6f482ac9667ba9f61e75092 ), ROMENTRYTYPE_PGM ) /* Version 2 (Label: IGS | PGM P02S | 1P0792D1 | J992438 )*/ \
+ROMX_LOAD( "pgm_p01s.u20", 0x00000, 0x020000, CRC( e42b166e ) SHA1( 2a9df9ec746b14b74fae48b1a438da14973702ea ), ROMENTRYTYPE_PGM ) // Version 1
+ROMX_LOAD( "pgm_t01s.rom", 0x000000, 0x200000, CRC( 1a7123a0 ) SHA1( cc567f577bfbf45427b54d6695b11b74f2578af3 ), ROMENTRYTYPE_PGM )
+ROMX_LOAD( "pgm_m01s.rom", 0x000000, 0x200000, CRC( 45ae7159 ) SHA1( d3ed3ff3464557fd0df6b069b2e431528b0ebfa8 ), ROMENTRYTYPE_PGM )
+ROM_END
+
+
 #define GAME_NAME(name)         driver_##name
 
 int registerGame( RomEntry const* romEntry, char const* name, char const* fullName, char const* company, char const* year, AsicClass asicClass );
@@ -32,5 +41,8 @@ int registerGame( RomEntry const* romEntry, char const* name, char const* fullNa
 #define GAME(YEAR, NAME, PARENT, MACHINE, INPUT, CLASS, INIT, MONITOR, COMPANY, FULLNAME, FLAGS) int GAME_NAME(NAME) = registerGame( ROM_NAME(NAME), #NAME, FULLNAME, COMPANY, #YEAR, CLASS );
 
 #include "MameGames.hpp"
+
+// entry to insert PGM ROMS that are on the PGM motherboards
+GAME( 1997, pgm, pgm, pgm, ddp3, pgm_state, init_pgm, ROT270, nullptr, nullptr, 0 )
 
 }
