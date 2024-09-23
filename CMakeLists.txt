@@ -22,7 +22,7 @@ target_link_libraries( PGMBuilder PRIVATE zip )
 if (WIN32)
 
   target_compile_definitions( PGMBuilder PRIVATE -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE )
-  set_source_files_properties(MameDB.cpp PROPERTIES COMPILE_FLAGS "/P")
+  #set_source_files_properties(MameDB.cpp PROPERTIES COMPILE_FLAGS "/P")
 
 endif()
 
