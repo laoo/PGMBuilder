@@ -33,6 +33,8 @@ target_precompile_headers( PGMBuilder PRIVATE
   <algorithm>
   <string>
   <bit>
+  <charconv>
+  <cassert>
   <cstdint>
   <vector>
   <format>
@@ -41,6 +43,7 @@ target_precompile_headers( PGMBuilder PRIVATE
   <filesystem>
   <fstream>
   <optional>
+  <unordered_map>
 )
 
 
