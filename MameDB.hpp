@@ -24,16 +24,6 @@ enum AsicClass
 	pgm_028_025_state
 };
 
-struct GameEntry
-{
-	RomEntry const* romEntry;
-	char const* name;
-	char const* fullName;
-	char const* company;
-	uint32_t year;
-	AsicClass asicClass;
-};
-
 enum
 {
 	ROMENTRYTYPE_ROM = 0,       // starts loading a ROM file
@@ -78,8 +68,5 @@ enum
 #define ROM_SKIPMASK                0x0000f000          /* skip this many bytes after each group */
 #define     ROM_SKIP(n)             (((n) & 15) << 12)
 #define     ROM_NOSKIP              ROM_SKIP(0)
-
-size_t getGamesCount();
-GameEntry const* getGame( size_t i );
 
 }

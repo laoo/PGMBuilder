@@ -16,7 +16,6 @@ namespace mameDB
 #define ROM_LOAD16_WORD_SWAP(name,offset,length,hash)   ROMX_LOAD(name, offset, length, hash, ROM_GROUPWORD | ROM_REVERSE)
 #define ROM_LOAD16_BYTE(name,offset,length,hash)        ROMX_LOAD(name, offset, length, hash, ROM_SKIP(1))
 #define ROM_LOAD(name,offset,length,hash)           ROMX_LOAD(name, offset, length, hash, 0)
-#define ROM_RELOAD(offset,length)                   { nullptr, nullptr, offset, length, ROMENTRYTYPE_RELOAD | ROM_INHERITFLAGS },
 #define ROM_IGNORE(length)                          { nullptr,  nullptr,                 0,        (length), ROMENTRYTYPE_IGNORE | ROM_INHERITFLAGS },
 #define ROM_CONTINUE(offset,length)                 { nullptr,  nullptr,                 (offset), (length), ROMENTRYTYPE_CONTINUE | ROM_INHERITFLAGS },
 #define CRC(x)              "R" #x
@@ -27,43 +26,18 @@ namespace mameDB
 #include "MameROMs.hpp"
 
 #define GAME_NAME(name)         driver_##name
-#define GAME_TRAITS_NAME(name)  driver_##name##traits
-#define GAME_EXTERN(name)       extern game_driver const GAME_NAME(name)
 
-#define GAME_DRIVER_TRAITS(NAME, FULLNAME) \
-namespace { \
-	struct GAME_TRAITS_NAME(NAME) { static constexpr char const shortname[] = #NAME, fullname[] = FULLNAME; }; \
-	constexpr char const GAME_TRAITS_NAME(NAME)::shortname[], GAME_TRAITS_NAME(NAME)::fullname[]; \
-}
-#define GAME_DRIVER_TYPE(NAME, CLASS, FLAGS) \
-driver_device_creator< \
-		CLASS, \
-		(GAME_TRAITS_NAME(NAME)::shortname), \
-		(GAME_TRAITS_NAME(NAME)::fullname), \
-		(GAME_TRAITS_NAME(NAME)::source), \
-		game_driver::unemulated_features(FLAGS), \
-		game_driver::imperfect_features(FLAGS)>
+static int registerGame( RomEntry const* romEntry, char const* name, char const* fullName, char const* company, char const* year, AsicClass asicClass );
 
-
-#define GAME(YEAR, NAME, PARENT, MACHINE, INPUT, CLASS, INIT, MONITOR, COMPANY, FULLNAME, FLAGS) { ROM_NAME(NAME), #NAME, #FULLNAME, #COMPANY, YEAR, CLASS },
-
-static const GameEntry gameEntries[] = {
+#define GAME(YEAR, NAME, PARENT, MACHINE, INPUT, CLASS, INIT, MONITOR, COMPANY, FULLNAME, FLAGS) int GAME_NAME(NAME) = registerGame( ROM_NAME(NAME), #NAME, #FULLNAME, #COMPANY, #YEAR, CLASS );
 
 #include "MameGames.hpp"
 
-};
-
-size_t getGamesCount()
+static int registerGame( RomEntry const* romEntry, char const* name, char const* fullName, char const* company, char const* year, AsicClass asicClass )
 {
-	return sizeof gameEntries / sizeof( GameEntry );
+  static int cnt = 0;
+  return cnt++;
 }
 
-GameEntry const* getGame( size_t i )
-{
-	if ( i < getGamesCount() )
-		return &gameEntries[i];
-	else
-		return nullptr;
-}
 
 }

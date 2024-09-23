@@ -8,7 +8,7 @@ struct Entry
 {
   uint32_t offset;
   uint32_t size;
-}
+};
 
 struct Header
 {
@@ -63,8 +63,8 @@ struct Image
 };
 
 //width of the cover = 7*16 = 448/4
-//aspect ratio should be 2:3
-typedef Image<112, 112> Cover;
+//aspect ratio should be 4:7
+typedef Image<112, 128> Cover;
 //aspect ratio should be 4:3
 typedef Image<112, 56> Screenshot;
 
