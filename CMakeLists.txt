@@ -15,6 +15,8 @@ add_executable( PGMBuilder
   convert.cpp
   MameDB.cpp
   MameDBImport.cpp
+  Builder.cpp
+  Log.cpp
 )
 
 target_include_directories( PGMBuilder PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libextern/zip/src )

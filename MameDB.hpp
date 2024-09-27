@@ -5,33 +5,33 @@ namespace mameDB
 
 struct RomEntry
 {
-	char const* name;
-	char const* hashdata;
-	uint32_t    offset;
-	uint32_t    length;
-	uint32_t    flags;
+  char const* name;
+  char const* hashdata;
+  uint32_t    offset;
+  uint32_t    length;
+  uint32_t    flags;
 };
 
 enum AsicClass
 {
-	pgm_state = 0,
-	pgm_asic3_state,
-	pgm_012_025_state,
-	pgm_022_025_state,
-	pgm_arm_type1_state,
-	pgm_arm_type2_state,
-	pgm_arm_type3_state,
-	pgm_028_025_state
+  pgm_state = 0,
+  pgm_asic3_state,
+  pgm_012_025_state,
+  pgm_022_025_state,
+  pgm_arm_type1_state,
+  pgm_arm_type2_state,
+  pgm_arm_type3_state,
+  pgm_028_025_state
 };
 
 enum
 {
-	ROMENTRYTYPE_ROM = 0,       // starts loading a ROM file
-	ROMENTRYTYPE_REGION,        // starts a new ROM region
-	ROMENTRYTYPE_END,           // sentinel marking the end of a ROM definition
-	ROMENTRYTYPE_CONTINUE,      // continues loading the current ROM file at a different offset
-	ROMENTRYTYPE_IGNORE,        // ignores a portion of the current ROM file
-	ROMENTRYTYPE_PGM,           // PGM roms to be ignored
+  ROMENTRYTYPE_ROM = 0,       // starts loading a ROM file
+  ROMENTRYTYPE_REGION,        // starts a new ROM region
+  ROMENTRYTYPE_END,           // sentinel marking the end of a ROM definition
+  ROMENTRYTYPE_CONTINUE,      // continues loading the current ROM file at a different offset
+  ROMENTRYTYPE_IGNORE,        // ignores a portion of the current ROM file
+  ROMENTRYTYPE_PGM,           // PGM roms to be ignored
 };
 
 #define ROM_REVERSEMASK             0x00000040          /* reverse the byte order within a group */
@@ -52,5 +52,25 @@ enum
 #define ROMREGION_ERASEVALMASK      0x00ff0000          /* value to erase the region to */
 #define     ROMREGION_ERASE00       0x00000000
 #define     ROMREGION_ERASEFF       0x00ff0000
+
+struct GameEntry
+{
+  RomEntry const* romEntry;
+  std::string name;
+  char const* fullName;
+  char const* company;
+  char const* year;
+  AsicClass asicClass;
+};
+
+struct GameEntryComparer
+{
+  bool operator()( std::shared_ptr<mameDB::GameEntry> const& left, std::shared_ptr<mameDB::GameEntry> const& right )
+  {
+    return left->name < right->name;
+  }
+};
+
+std::span<std::shared_ptr<GameEntry>> findGameEntry( uint32_t hash );
 
 }

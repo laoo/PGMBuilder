@@ -3,16 +3,6 @@
 namespace mameDB
 {
 
-struct GameEntry
-{
-  RomEntry const* romEntry;
-  char const* name;
-  char const* fullName;
-  char const* company;
-  char const* year;
-  AsicClass asicClass;
-};
-
 struct RomHash
 {
   std::size_t operator()( uint32_t h ) const noexcept
@@ -26,7 +16,7 @@ std::unordered_map<uint32_t, std::vector<std::shared_ptr<GameEntry>>, RomHash> g
 
 int registerGame( RomEntry const* romEntry, char const* name, char const* fullName, char const* company, char const* year, AsicClass asicClass )
 {
-  auto gameEntry = std::make_shared<GameEntry>( romEntry, name, fullName, company, year, asicClass );
+  auto gameEntry = std::make_shared<GameEntry>( romEntry, std::string{ name }, fullName, company, year, asicClass );
 
   for ( size_t i = 0;; ++i )
   {
@@ -44,12 +34,24 @@ int registerGame( RomEntry const* romEntry, char const* name, char const* fullNa
       }
       if ( r.flags != ROMENTRYTYPE_PGM )
       {
-        gGamesMap[hash].push_back( gameEntry );
+        auto& v = gGamesMap.at( hash );
+        auto it = std::lower_bound( v.begin(), v.end(), gameEntry, GameEntryComparer{} );
+        v.insert( it, gameEntry );
       }
     }
   }
 
   return gGamesMap.size();
+}
+
+
+std::span<std::shared_ptr<GameEntry>> findGameEntry( uint32_t hash )
+{
+  auto it = gGamesMap.find( hash );
+  if ( it == gGamesMap.cend() )
+    return {};
+  else
+    return it->second;
 }
 
 }
