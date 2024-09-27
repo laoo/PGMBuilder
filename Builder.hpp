@@ -23,6 +23,14 @@ private:
   std::vector<std::shared_ptr<mameDB::GameEntry>> computeIntersection() const;
 
 private:
-  std::unique_ptr<BuilderData> mData;
+  struct ROMEntry
+  {
+    size_t size;
+    uint32_t crc;
+    std::span<std::shared_ptr<mameDB::GameEntry>> games;
+  };
+
+  std::vector<ROMEntry> mRoms = {};
+  std::vector<std::shared_ptr<mameDB::GameEntry>> mSum = {};
 
 };
