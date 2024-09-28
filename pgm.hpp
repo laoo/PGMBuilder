@@ -4,24 +4,28 @@
 namespace pgm
 {
 
+static constexpr uint16_t IGSPGM_VERSION = 0x0001;
+
 struct Entry
 {
-  uint32_t offset;
+  uint32_t mapping; //adress where ROM should be mapped
+  uint32_t offset;  //offset in file. Rounded to 512 bytes
   uint32_t size;
 };
 
 struct Header
 {
   char magic[4];          //"IGSPGM"
-  uint16_t version;       //version number initially 1
+  uint16_t version;       //version number in BCD BE format, 01.23 encoded as $0123
   char manufacturer[16];  //name of the manufacturer
   char shortName[16];     //name of the cart in MAME style
-  char longName[128];      //long descriptive name
+  char longName[128];     //long descriptive name
   uint32_t year;          //year of publishing in BCD
-  uint32_t genre;         //game genere
-  uint32_t asicType;      //type of the hardware present on the cartridge
+  uint32_t genre;
+  uint32_t coverOffset;           //offset to the CoverImage structure
+  uint32_t screenshotsOffsets[8]; //table of offset (up to 8) to ScreenshotImage structure
 
-  uint8_t filler1[332];   //fill to 512
+  uint8_t filler1[300];   //fill to 512
 
   Entry romP;
   Entry romT;
@@ -29,11 +33,7 @@ struct Header
   Entry romB;
   Entry romA;
 
-  Entry cover;
-  Entry screenshots[8];
-  Entry asicDesc;
-
-  uint8_t filler2[392];   //fill to 1024
+  uint8_t filler2[452];   //fill to 1024
 };
 
 template<size_t WIDTH, size_t HEIGHT>
@@ -64,8 +64,11 @@ struct Image
 
 //width of the cover = 7*16 = 448/4
 //aspect ratio should be 4:7
-typedef Image<112, 128> Cover;
+typedef Image<112, 128> CoverImage;
 //aspect ratio should be 4:3
-typedef Image<112, 56> Screenshot;
+typedef Image<112, 56> ScreenshotImage;
+
+static constexpr size_t coverSize = sizeof( Cover );            //14884
+static constexpr size_t screenshotSize = sizeof( Screenshot );  //6820
 
 }

@@ -1,4 +1,6 @@
 #include "convert.hpp"
+#include "Ex.hpp"
+#include "Log.hpp"
 
 void bulkConvert( ProgramOptions const& opt )
 {
@@ -6,7 +8,14 @@ void bulkConvert( ProgramOptions const& opt )
   {
     if ( dirEntry.is_regular_file() )
     {
-      convert( dirEntry.path(), opt );
+      try
+      {
+        convert( dirEntry.path(), opt );
+      }
+      catch ( Ex const& ex )
+      {
+        LN << ex.what();
+      }
     }
   }
 }

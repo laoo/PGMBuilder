@@ -52,6 +52,11 @@ ProgramOptions::ProgramOptions( int argc, char const* argv[] ) : mOpt{ std::make
     {
       std::filesystem::create_directories( mOutput );
     }
+    else if ( std::filesystem::is_directory( mOutput ) )
+    {
+      mOutput /= mInput.filename();
+      mOutput.replace_extension( ".pgm" );
+    }
   }
   else
   {

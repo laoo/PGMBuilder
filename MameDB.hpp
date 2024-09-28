@@ -1,5 +1,8 @@
 #pragma once
 
+#include "RawROM.hpp"
+#include "ImageCache.hpp"
+
 namespace mameDB
 {
 
@@ -71,6 +74,8 @@ struct GameEntryComparer
   }
 };
 
-std::span<std::shared_ptr<GameEntry>> findGameEntry( uint32_t hash );
+uint32_t parseCRC( char const* s );
+void populateCache( RawROM rom, ImageCache& cache );
+std::shared_ptr<GameEntry> gameByName( std::string const& name );
 
 }
