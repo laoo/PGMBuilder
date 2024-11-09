@@ -19,7 +19,7 @@ int main( int argc, char const* argv[] )
     }
     else
     {
-      convert( options.input(), options );
+      convert( options.input(), options.output(), options );
     }
   }
   catch ( Ex const& e )

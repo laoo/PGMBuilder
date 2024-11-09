@@ -1,6 +1,7 @@
 #include "MameImage.hpp"
 #include "MameDB.hpp"
 #include "Ex.hpp"
+#include "Log.hpp"
 
 using namespace std::string_view_literals;
 
@@ -81,9 +82,15 @@ std::shared_ptr<MameImage> MameImage::create( std::string const& tpl )
       {
         type = RomType::M;
       }
+      else
+      {
+        type = RomType::NONE;
+      }
     }
     else if ( ( romEntry.flags & 0x0f ) == ROMENTRYTYPE_ROM )
     {
+      if ( type == RomType::NONE )
+        continue;
       ROMSlot slot{ type };
       if ( romEntry.hashdata == nullptr || romEntry.hashdata[0] == '!' )
         return {};
@@ -93,11 +100,13 @@ std::shared_ptr<MameImage> MameImage::create( std::string const& tpl )
     }
     else if ( ( romEntry.flags & 0x0f ) == ROMENTRYTYPE_CONTINUE )
     {
-      slots.back().ops.emplace_back( romEntry.offset, romEntry.length, romEntry.flags );
+      return {};
+      //slots.back().ops.emplace_back( romEntry.offset, romEntry.length, romEntry.flags );
     }
     else if ( ( romEntry.flags & 0x0f ) == ROMENTRYTYPE_IGNORE )
     {
-      slots.back().ops.emplace_back( romEntry.offset, romEntry.length, romEntry.flags );
+      return {};
+      //slots.back().ops.emplace_back( romEntry.offset, romEntry.length, romEntry.flags );
     }
   }
 
@@ -145,18 +154,59 @@ void MameImage::build( std::filesystem::path const& out ) const
 
   {
     auto assembly = assembleROM( RomType::P );
-    header.romP.mapping = assembly.offset;
+    header.romP.mapping = assembly.begin;
     header.romP.offset = round512( fout );
     header.romP.size = assembly.data.size();
     fout.write( std::bit_cast< char const* >( assembly.data.data() ), assembly.data.size() );
   }
+  {
+    auto assembly = assembleROM( RomType::T );
+    header.romT.mapping = assembly.begin;
+    header.romT.offset = round512( fout );
+    header.romT.size = assembly.data.size();
+    fout.write( std::bit_cast< char const* >( assembly.data.data() ), assembly.data.size() );
+  }
+  {
+    auto assembly = assembleROM( RomType::A );
+    header.romA.mapping = assembly.begin;
+    header.romA.offset = round512( fout );
+    header.romA.size = assembly.data.size();
+    fout.write( std::bit_cast<char const*>( assembly.data.data() ), assembly.data.size() );
+  }
+  {
+    auto assembly = assembleROM( RomType::B );
+    header.romB.mapping = assembly.begin;
+    header.romB.offset = round512( fout );
+    header.romB.size = assembly.data.size();
+    fout.write( std::bit_cast<char const*>( assembly.data.data() ), assembly.data.size() );
+  }
+  {
+    auto assembly = assembleROM( RomType::M );
+    header.romM.mapping = assembly.begin;
+    header.romM.offset = round512( fout );
+    header.romM.size = assembly.data.size();
+    fout.write( std::bit_cast<char const*>( assembly.data.data() ), assembly.data.size() );
+  }
 
+  fout.seekp( 0 );
+  fout.write( std::bit_cast<char const*>( &header ), sizeof( header ) );
 }
 
 MameImage::RomAssembly MameImage::assembleROM( RomType type ) const
 {
-  MameImage::RomAssembly result{};
   std::shared_ptr<RawROM> rawRom;
+
+  uint32_t beg = std::numeric_limits<uint32_t>::max();
+  uint32_t end = std::numeric_limits<uint32_t>::min();
+
+  for ( auto const& slot : slotsByType( type ) )
+    for ( auto const& op : slot.ops )
+    {
+      beg = std::min( beg, op.offset );
+      end = std::max( end, op.offset + op.length * ( ( ( op.flags & ROM_SKIPMASK ) == ROM_SKIP1 ) ? 2 : 1 ) );
+    }
+
+  MameImage::RomAssembly result{ beg, end };
 
   for ( auto const& slot : slotsByType( type ) )
   {
@@ -182,8 +232,52 @@ cppcoro::generator<MameImage::ROMSlot const&> MameImage::slotsByType( RomType ty
   }
 }
 
+MameImage::RomAssembly::RomAssembly( uint32_t beg, uint32_t end ) :
+  begin{ beg }, end{ end }
+{
+  data.resize( end - begin );
+}
+
 void MameImage::RomAssembly::add( RomOp const& op, RawROM const& rom )
 {
+  assert( ( op.flags & 0x0f ) != ROMENTRYTYPE_CONTINUE );
+  assert( ( op.flags & 0x0f ) != ROMENTRYTYPE_IGNORE );
+
+  LV << rom.name;
+
+  if ( ( op.flags & ROM_GROUPMASK ) )
+  {
+    if ( ( ( op.flags & ROM_GROUPMASK ) == ROM_GROUPWORD ) && ( ( op.flags & ROM_REVERSEMASK ) == ROM_REVERSE ) )
+    {
+      uint16_t* dst = std::bit_cast<uint16_t*>( data.data() + op.offset - begin );
+      uint16_t const* src = std::bit_cast<uint16_t const*>( rom.buffer.get() );
+      size_t length = op.length / 2;
+      for ( size_t i = 0; i < length; ++i )
+      {
+        dst[i] = std::byteswap( src[i] );
+      }
+    }
+    else
+      throw Ex{} << "Unsupported ROM_GROUPMASK operation";
+  }
+  else if ( ( op.flags & ROM_SKIPMASK ) )
+  {
+    if ( ( op.flags & ROM_SKIPMASK ) == ROM_SKIP1 )
+    {
+      uint8_t* dst = data.data() + op.offset - begin;
+      uint8_t const* src = rom.buffer.get();
+      for ( size_t i = 0; i < op.length; ++i )
+      {
+        dst[i * 2] = src[i];
+      }
+    }
+    else
+      throw Ex{} << "Unsupported ROM_SKIPMASK operation";
+  }
+  else
+  {
+    std::copy_n( rom.buffer.get(), op.length, data.data() + op.offset - begin );
+  }
 }
 
 }

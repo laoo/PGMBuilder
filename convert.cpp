@@ -5,7 +5,7 @@
 #include "RawROM.hpp"
 #include "Log.hpp"
 
-static void convert( zip_t* zip, char const* cpath, ProgramOptions const& opt )
+static void convert( zip_t* zip, char const* cpath, std::filesystem::path const& output )
 {
   LN << "Processing " << cpath;
 
@@ -33,11 +33,19 @@ static void convert( zip_t* zip, char const* cpath, ProgramOptions const& opt )
     }
   }
 
-  builder.build( opt.output() );
+  builder.build( output );
 }
 
-void convert( std::filesystem::path const& input, ProgramOptions const& opt )
+void convert( std::filesystem::path const& input, std::filesystem::path const& output, ProgramOptions const& opt )
 {
+  std::filesystem::path foutput = output;
+  if ( std::filesystem::is_directory( foutput ) )
+  {
+    foutput /= input.filename();
+    foutput.replace_extension( ".pgm" );
+
+  }
+
   auto gstring = input.generic_string();
   auto cpath = gstring.c_str();
 
@@ -45,7 +53,7 @@ void convert( std::filesystem::path const& input, ProgramOptions const& opt )
   if ( auto zip = zip_openwitherror( cpath, 0, 'r', &errnum ) )
   {
     std::shared_ptr<zip_t> deleter( zip, &zip_close );
-    convert( zip, cpath, opt );
+    convert( zip, cpath, foutput );
   }
   else
   {

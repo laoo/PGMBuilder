@@ -37,24 +37,25 @@ enum
   ROMENTRYTYPE_PGM,           // PGM roms to be ignored
 };
 
-#define ROM_REVERSEMASK             0x00000040          /* reverse the byte order within a group */
-#define     ROM_REVERSE             0x00000040
-#define ROM_INHERITFLAGSMASK        0x00000080          /* inherit all flags from previous definition */
-#define     ROM_INHERITFLAGS        0x00000080
 #define ROMREGION_WIDTHMASK         0x00000300          /* native width of region, as power of 2 */
 #define     ROMREGION_16BIT         0x00000100
 #define     ROMREGION_32BIT         0x00000200
 #define ROMREGION_ENDIANMASK        0x00000400          /* endianness of the region */
 #define     ROMREGION_LE            0x00000000          /*    (non-CPU regions only) */
-#define ROM_GROUPMASK               0x00000f00          /* load data in groups of this size + 1 */
-#define     ROM_GROUPWORD           0x00000100
 #define ROMREGION_ERASEMASK         0x00002000          /* erase the region before loading */
 #define     ROMREGION_ERASE         0x00002000
-#define ROM_SKIPMASK                0x0000f000          /* skip this many bytes after each group */
-#define     ROM_SKIP1               0x00001000
 #define ROMREGION_ERASEVALMASK      0x00ff0000          /* value to erase the region to */
 #define     ROMREGION_ERASE00       0x00000000
 #define     ROMREGION_ERASEFF       0x00ff0000
+
+#define ROM_REVERSEMASK             0x00000040          /* reverse the byte order within a group */
+#define     ROM_REVERSE             0x00000040
+#define ROM_INHERITFLAGSMASK        0x00000080          /* inherit all flags from previous definition */
+#define     ROM_INHERITFLAGS        0x00000080
+#define ROM_GROUPMASK               0x00000f00          /* load data in groups of this size + 1 */
+#define     ROM_GROUPWORD           0x00000100
+#define ROM_SKIPMASK                0x0000f000          /* skip this many bytes after each group */
+#define     ROM_SKIP1               0x00001000
 
 struct GameEntry
 {

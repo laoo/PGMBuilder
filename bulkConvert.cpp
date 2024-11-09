@@ -10,7 +10,7 @@ void bulkConvert( ProgramOptions const& opt )
     {
       try
       {
-        convert( dirEntry.path(), opt );
+        convert( dirEntry.path(), opt.output(), opt );
       }
       catch ( Ex const& ex )
       {
