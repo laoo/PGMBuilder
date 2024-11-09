@@ -10,12 +10,15 @@ struct GameEntry;
 class MameImage : public Image
 {
 public:
-  MameImage( std::string const& tpl );
   ~MameImage() override;
-
   void addROM( std::shared_ptr<RawROM> rom ) override;
+  bool isComplete() const override;
+  void build( std::filesystem::path const& out ) const override;
+
+  static std::shared_ptr<MameImage> create( std::string const& tpl );
 
 private:
+
   enum struct RomType
   {
     NONE,
@@ -42,7 +45,10 @@ private:
   };
 
   std::shared_ptr<GameEntry> mGameEntry;
-  std::vector<ROMSlot> mSlots = {};
+  std::vector<ROMSlot> mSlots;
+
+public:
+  MameImage( std::shared_ptr<GameEntry> aGameEntry, std::vector<ROMSlot> aSlots );
 };
 
 }

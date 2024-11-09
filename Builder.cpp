@@ -23,5 +23,15 @@ void Builder::addROM( RawROM rom )
 
 void Builder::build( std::filesystem::path const& out )
 {
+  for ( auto const& p : mCache.cache )
+  {
+    auto const& img = *p.second;
+    if ( img.isComplete() )
+    {
+      LN << "Building '" << p.first << '\'';
+      img.build( out );
+      return;
+    }
+  }
 }
 

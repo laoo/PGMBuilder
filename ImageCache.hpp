@@ -6,15 +6,15 @@ struct ImageCache
 {
   std::shared_ptr<Image> get( std::string const& name )
   {
-    auto it = mCache.find( name );
-    if ( it != mCache.end() )
+    auto it = cache.find( name );
+    if ( it != cache.end() )
       return it->second;
 
     auto img = name.empty() ? Image::custom() : Image::fromTemplate( name );
-    mCache.insert( { name, img } );
+    if ( img )
+      cache.insert( { name, img } );
     return img;
   }
 
-private:
-  std::unordered_map<std::string, std::shared_ptr<Image>> mCache = {};
+  std::unordered_map<std::string, std::shared_ptr<Image>> cache = {};
 };

@@ -24,7 +24,7 @@ int main( int argc, char const* argv[] )
   }
   catch ( Ex const& e )
   {
-    std::cerr << e.what();
+    LN << e.what();
     return 1;
   }
 

@@ -1,22 +1,51 @@
 #include "MameImage.hpp"
 #include "MameDB.hpp"
 #include "Ex.hpp"
+#include "pgm.hpp"
 
 using namespace std::string_view_literals;
 
 namespace mameDB
 {
-
-
-MameImage::MameImage( std::string const& tpl ) : mGameEntry{ gameByName( tpl ) }
+namespace
 {
-  assert( mGameEntry );
+
+pgm::Header buildHeader( GameEntry const& entry )
+{
+  pgm::Header header;
+
+  std::fill_n( std::bit_cast< char* >( &header ), sizeof( pgm::Header ), 0 );
+  std::copy_n( "IGSPGM", 6, header.magic );
+
+  header.version = 0x0100;
+
+  std::string_view company{  };
+  std::copy_n( entry.company, std::min( strlen( entry.company ), sizeof( pgm::Header::manufacturer ) ), header.manufacturer );
+  std::copy_n( entry.name.data(), std::min( entry.name.size(), sizeof( pgm::Header::shortName ) ), header.shortName );
+  std::copy_n( entry.fullName, std::min( strlen( entry.fullName ), sizeof( pgm::Header::longName ) ), header.longName );
+  std::copy_n( entry.year, std::min( strlen( entry.year ), sizeof( pgm::Header::year ) ), header.year );
+
+  return header;
+}
+
+}
+
+MameImage::MameImage( std::shared_ptr<GameEntry> aGameEntry, std::vector<ROMSlot> aSlots ) : mGameEntry{ std::move( aGameEntry ) }, mSlots{ std::move( aSlots ) }
+{
+}
+
+std::shared_ptr<MameImage> MameImage::create( std::string const& tpl )
+{
+  auto gameEntry = gameByName( tpl );
+  std::vector<ROMSlot> slots;
+
+  assert( gameEntry );
 
   RomType type = RomType::NONE;
 
   for ( size_t i = 0;; ++i )
   {
-    RomEntry const& romEntry = mGameEntry->romEntry[i];
+    RomEntry const& romEntry = gameEntry->romEntry[i];
 
     if ( ( romEntry.flags & 0x0f ) == ROMENTRYTYPE_END )
       break;
@@ -46,21 +75,23 @@ MameImage::MameImage( std::string const& tpl ) : mGameEntry{ gameByName( tpl ) }
     else if ( ( romEntry.flags & 0x0f ) == ROMENTRYTYPE_ROM )
     {
       ROMSlot slot{ type };
-      if ( romEntry.hashdata == nullptr || romEntry.hashdata[0] != 'R' )
-        throw Ex{} << "Internal error with MameImage hash";
-      slot.crc = parseCRC( romEntry.hashdata + 1 );
+      if ( romEntry.hashdata == nullptr || romEntry.hashdata[0] == '!' )
+        return {};
+      slot.crc = parseCRC( romEntry.hashdata + ( romEntry.hashdata[0] == 'R' ? 1 : 2 ) );
       slot.ops.emplace_back( romEntry.offset, romEntry.length, romEntry.flags );
-      mSlots.push_back( slot );
+      slots.push_back( slot );
     }
     else if ( ( romEntry.flags & 0x0f ) == ROMENTRYTYPE_CONTINUE )
     {
-      mSlots.back().ops.emplace_back( romEntry.offset, romEntry.length, romEntry.flags );
+      slots.back().ops.emplace_back( romEntry.offset, romEntry.length, romEntry.flags );
     }
     else if ( ( romEntry.flags & 0x0f ) == ROMENTRYTYPE_IGNORE )
     {
-      mSlots.back().ops.emplace_back( romEntry.offset, romEntry.length, romEntry.flags );
+      slots.back().ops.emplace_back( romEntry.offset, romEntry.length, romEntry.flags );
     }
   }
+
+  return std::make_shared<MameImage>( std::move( gameEntry ), std::move( slots ) );
 }
 
 MameImage::~MameImage()
@@ -79,6 +110,28 @@ void MameImage::addROM( std::shared_ptr<RawROM> rom )
       break;
     }
   }
+}
+
+bool MameImage::isComplete() const
+{
+  for ( auto& slot : mSlots )
+  {
+    if ( !slot.src )
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+void MameImage::build( std::filesystem::path const& out ) const
+{
+  pgm::Header header = buildHeader( *mGameEntry );
+
+  std::ofstream fout{ out, std::ios::binary };
+
+  fout.write( std::bit_cast< char const* >( &header ), sizeof( header ) );
 }
 
 }

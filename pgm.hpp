@@ -15,12 +15,12 @@ struct Entry
 
 struct Header
 {
-  char magic[4];          //"IGSPGM"
+  char magic[6];          //"IGSPGM"
   uint16_t version;       //version number in BCD BE format, 01.23 encoded as $0123
   char manufacturer[16];  //name of the manufacturer
   char shortName[16];     //name of the cart in MAME style
   char longName[128];     //long descriptive name
-  uint32_t year;          //year of publishing in BCD
+  char year[4];          //year of publishing as a string
   uint32_t genre;
   uint32_t coverOffset;           //offset to the CoverImage structure
   uint32_t screenshotsOffsets[8]; //table of offset (up to 8) to ScreenshotImage structure
@@ -68,7 +68,7 @@ typedef Image<112, 128> CoverImage;
 //aspect ratio should be 4:3
 typedef Image<112, 56> ScreenshotImage;
 
-static constexpr size_t coverSize = sizeof( Cover );            //14884
-static constexpr size_t screenshotSize = sizeof( Screenshot );  //6820
+static constexpr size_t coverSize = sizeof( CoverImage );           //14884
+static constexpr size_t screenshotSize = sizeof( ScreenshotImage ); //6820
 
 }

@@ -8,7 +8,7 @@ Image::~Image()
 
 std::shared_ptr<Image> Image::fromTemplate( std::string const& tpl )
 {
-  return std::make_shared<mameDB::MameImage>( tpl );
+  return mameDB::MameImage::create( tpl );
 }
 
 std::shared_ptr<Image> Image::custom()

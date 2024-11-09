@@ -73,7 +73,10 @@ void populateCache( RawROM rom, ImageCache& cache )
   {
     for ( auto const& pGame : *games )
     {
-      cache.get( pGame->name )->addROM( pROM );
+      if ( auto img = cache.get( pGame->name ) )
+      {
+        img->addROM( pROM );
+      }
     }
   }
   else
