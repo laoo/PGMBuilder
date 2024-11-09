@@ -1,7 +1,6 @@
 #include "MameImage.hpp"
 #include "MameDB.hpp"
 #include "Ex.hpp"
-#include "pgm.hpp"
 
 using namespace std::string_view_literals;
 
@@ -26,6 +25,17 @@ pgm::Header buildHeader( GameEntry const& entry )
   std::copy_n( entry.year, std::min( strlen( entry.year ), sizeof( pgm::Header::year ) ), header.year );
 
   return header;
+}
+
+size_t round512( std::ofstream& fout )
+{
+  size_t p = fout.tellp();
+  if ( ( p & 511 ) != 0 )
+  {
+    fout.seekp( ( p & ~511ull ) + 512ull );
+  }
+
+  return fout.tellp();
 }
 
 }
@@ -132,6 +142,48 @@ void MameImage::build( std::filesystem::path const& out ) const
   std::ofstream fout{ out, std::ios::binary };
 
   fout.write( std::bit_cast< char const* >( &header ), sizeof( header ) );
+
+  {
+    auto assembly = assembleROM( RomType::P );
+    header.romP.mapping = assembly.offset;
+    header.romP.offset = round512( fout );
+    header.romP.size = assembly.data.size();
+    fout.write( std::bit_cast< char const* >( assembly.data.data() ), assembly.data.size() );
+  }
+
+}
+
+MameImage::RomAssembly MameImage::assembleROM( RomType type ) const
+{
+  MameImage::RomAssembly result{};
+  std::shared_ptr<RawROM> rawRom;
+
+  for ( auto const& slot : slotsByType( type ) )
+  {
+    if ( slot.src )
+      rawRom = slot.src;
+    for ( auto const& op : slot.ops )
+    {
+      result.add( op, *rawRom );
+    }
+  }
+
+  return result;
+}
+
+cppcoro::generator<MameImage::ROMSlot const&> MameImage::slotsByType( RomType type ) const
+{
+  for ( auto& slot : mSlots )
+  {
+    if ( slot.type == type )
+    {
+      co_yield slot;
+    }
+  }
+}
+
+void MameImage::RomAssembly::add( RomOp const& op, RawROM const& rom )
+{
 }
 
 }

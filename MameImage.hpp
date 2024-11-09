@@ -2,6 +2,8 @@
 
 #include "Image.hpp"
 #include "RawROM.hpp"
+#include "pgm.hpp"
+#include "generator.hpp"
 
 namespace mameDB
 {
@@ -46,6 +48,18 @@ private:
 
   std::shared_ptr<GameEntry> mGameEntry;
   std::vector<ROMSlot> mSlots;
+
+  struct RomAssembly
+  {
+    uint32_t offset = 0;
+    std::vector<uint8_t> data;
+
+    void add( RomOp const& op, RawROM const& );
+  };
+
+  RomAssembly assembleROM( RomType type ) const;
+
+  cppcoro::generator<ROMSlot const&> slotsByType( RomType type ) const;
 
 public:
   MameImage( std::shared_ptr<GameEntry> aGameEntry, std::vector<ROMSlot> aSlots );
