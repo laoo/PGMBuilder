@@ -1,5 +1,15 @@
 #pragma once
 
+enum struct RomType
+{
+  NONE,
+  P,
+  T,
+  M,
+  B,
+  A
+};
+
 struct RomOp
 {
   uint32_t offset = 0;
@@ -23,4 +33,5 @@ struct RomAssembly
 
   RomAssembly( uint32_t beg, uint32_t end );
   void add( RomOp const& op, RawROM const& );
+  void process( RomType type, std::string const& gameName );
 };

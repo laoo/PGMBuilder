@@ -218,6 +218,7 @@ RomAssembly MameImage::assembleROM( RomType type ) const
     }
   }
 
+  result.process( type, mGameEntry->name );
   return result;
 }
 

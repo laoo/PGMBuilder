@@ -20,6 +20,7 @@ add_executable( PGMBuilder
   Image.cpp
   MameImage.cpp
   RomAssembly.cpp
+  crypt.cpp
 )
 
 target_include_directories( PGMBuilder PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libextern/zip/src )

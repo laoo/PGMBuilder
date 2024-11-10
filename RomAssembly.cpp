@@ -1,5 +1,6 @@
 #include "RomAssembly.hpp"
 #include "MameDB.hpp"
+#include "crypt.hpp"
 #include "Ex.hpp"
 #include "Log.hpp"
 
@@ -48,5 +49,13 @@ void RomAssembly::add( RomOp const& op, RawROM const& rom )
   else
   {
     std::copy_n( rom.buffer.get(), op.length, data.data() + op.offset - begin );
+  }
+}
+
+void RomAssembly::process( RomType type, std::string const& gameName )
+{
+  if ( auto decryptor = getDecryptor( type, gameName ) )
+  {
+    decryptor( data );
   }
 }

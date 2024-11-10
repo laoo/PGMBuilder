@@ -21,17 +21,6 @@ public:
 
 private:
 
-  enum struct RomType
-  {
-    NONE,
-    P,
-    T,
-    M,
-    B,
-    A
-  };
-
-
   struct ROMSlot
   {
     RomType type;
