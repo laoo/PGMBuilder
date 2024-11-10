@@ -4,7 +4,7 @@
 namespace pgm
 {
 
-static constexpr uint16_t IGSPGM_VERSION = 0x0001;
+static constexpr uint16_t IGSPGM_VERSION = 0x0010;
 
 struct Entry
 {
