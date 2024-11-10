@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Image.hpp"
-#include "RawROM.hpp"
+#include "RomAssembly.hpp"
 #include "pgm.hpp"
 #include "generator.hpp"
 
@@ -31,12 +31,6 @@ private:
     A
   };
 
-  struct RomOp
-  {
-    uint32_t offset = 0;
-    uint32_t length = 0;
-    uint32_t flags = 0;
-  };
 
   struct ROMSlot
   {
@@ -49,15 +43,6 @@ private:
   std::shared_ptr<GameEntry> mGameEntry;
   std::vector<ROMSlot> mSlots;
 
-  struct RomAssembly
-  {
-    uint32_t begin;
-    uint32_t end;
-    std::vector<uint8_t> data;
-
-    RomAssembly( uint32_t beg, uint32_t end );
-    void add( RomOp const& op, RawROM const& );
-  };
 
   RomAssembly assembleROM( RomType type ) const;
 

@@ -23,15 +23,22 @@ void Builder::addROM( RawROM rom )
 
 void Builder::build( std::filesystem::path const& out )
 {
+  std::vector<std::pair<std::string, std::shared_ptr<Image>>> complete;
+
+  LN << "Possible games:";
   for ( auto const& p : mCache.cache )
   {
-    auto const& img = *p.second;
-    if ( img.isComplete() )
+    if ( p.second->isComplete() )
     {
-      LN << "Building '" << p.first << '\'';
-      img.build( out );
-      return;
+      complete.push_back( p );
+      LN << "\t" << p.first << '\'';
     }
+  }
+
+  if ( !complete.empty() )
+  {
+    LN << "Building " << complete[0].first;
+    complete[0].second->build( out );
   }
 }
 

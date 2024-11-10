@@ -2,7 +2,7 @@
 #include "zip.h"
 #include "Ex.hpp"
 #include "Builder.hpp"
-#include "RawROM.hpp"
+#include "RomAssembly.hpp"
 #include "Log.hpp"
 
 static void convert( zip_t* zip, char const* cpath, std::filesystem::path const& output )
@@ -43,7 +43,6 @@ void convert( std::filesystem::path const& input, std::filesystem::path const& o
   {
     foutput /= input.filename();
     foutput.replace_extension( ".pgm" );
-
   }
 
   auto gstring = input.generic_string();

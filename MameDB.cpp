@@ -1,6 +1,6 @@
 #include "MameDB.hpp"
 #include "ImageCache.hpp"
-#include "RawROM.hpp"
+#include "RomAssembly.hpp"
 
 namespace mameDB
 {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RawROM.hpp"
+#include "RomAssembly.hpp"
 #include "ImageCache.hpp"
 
 class Builder
