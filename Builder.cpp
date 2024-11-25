@@ -23,7 +23,8 @@ void Builder::addROM( RawROM rom )
 
 void Builder::build( std::filesystem::path const& out )
 {
-  std::vector<std::pair<std::string, std::shared_ptr<Image>>> complete;
+  using Pair = std::pair<std::string, std::shared_ptr<Image>>;
+  std::vector<Pair> complete;
 
   LN << "Possible games:";
   for ( auto const& p : mCache.cache )
@@ -37,8 +38,15 @@ void Builder::build( std::filesystem::path const& out )
 
   if ( !complete.empty() )
   {
+    std::sort( complete.begin(), complete.end(), []( Pair const& left, Pair const& right )
+    {
+      return std::lexicographical_compare( left.first.cbegin(), left.first.cend(), right.first.cbegin(), right.first.cend() );
+    } );
+
     LN << "Building " << complete[0].first;
-    complete[0].second->build( out );
+    auto destPath = ( out / complete[0].first ).replace_extension( ".pgm" );
+    std::filesystem::create_directories( destPath.parent_path() );
+    complete[0].second->build( destPath );
   }
 }
 

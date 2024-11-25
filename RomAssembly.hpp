@@ -22,7 +22,7 @@ struct RawROM
   std::string name;
   uint32_t crc;
   size_t size;
-  std::unique_ptr < uint8_t, decltype( []( uint8_t* p ) { ::free( p ); } ) > buffer;
+  std::shared_ptr<uint8_t[]> buffer2;
 };
 
 struct RomAssembly
@@ -32,6 +32,5 @@ struct RomAssembly
   std::vector<uint8_t> data;
 
   RomAssembly( uint32_t beg, uint32_t end );
-  void add( RomOp const& op, RawROM const& );
-  void process( RomType type, std::string const& gameName );
+  void add( std::string const& gameName, RomType type, RomOp const& op, RawROM const& );
 };

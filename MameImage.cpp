@@ -214,11 +214,10 @@ RomAssembly MameImage::assembleROM( RomType type ) const
       rawRom = slot.src;
     for ( auto const& op : slot.ops )
     {
-      result.add( op, *rawRom );
+      result.add( mGameEntry->name, type, op, *rawRom );
     }
   }
 
-  result.process( type, mGameEntry->name );
   return result;
 }
 

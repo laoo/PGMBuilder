@@ -22,14 +22,17 @@ static void convert( zip_t* zip, char const* cpath, std::filesystem::path const&
     {
       std::shared_ptr<zip_t> deleter( zip, &zip_entry_close );
 
-      RawROM rom{};
-      rom.name = zip_entry_name( zip );
-      rom.crc = zip_entry_crc32( zip );
-      void* buf = NULL;
-      zip_entry_read( zip, &buf, &rom.size );
-      rom.buffer.reset( std::bit_cast<uint8_t*>( buf ) );
+      if ( !zip_entry_isdir( zip ) )
+      {
+        RawROM rom{};
+        rom.name = zip_entry_name( zip );
+        rom.crc = zip_entry_crc32( zip );
+        void* buf = NULL;
+        zip_entry_read( zip, &buf, &rom.size );
+        rom.buffer2.reset( std::bit_cast< uint8_t* >( buf ), []( uint8_t* p ) { ::free( p ); } );
 
-      builder.addROM( std::move( rom ) );
+        builder.addROM( std::move( rom ) );
+      }
     }
   }
 
@@ -38,13 +41,6 @@ static void convert( zip_t* zip, char const* cpath, std::filesystem::path const&
 
 void convert( std::filesystem::path const& input, std::filesystem::path const& output, ProgramOptions const& opt )
 {
-  std::filesystem::path foutput = output;
-  if ( std::filesystem::is_directory( foutput ) )
-  {
-    foutput /= input.filename();
-    foutput.replace_extension( ".pgm" );
-  }
-
   auto gstring = input.generic_string();
   auto cpath = gstring.c_str();
 
@@ -52,7 +48,7 @@ void convert( std::filesystem::path const& input, std::filesystem::path const& o
   if ( auto zip = zip_openwitherror( cpath, 0, 'r', &errnum ) )
   {
     std::shared_ptr<zip_t> deleter( zip, &zip_close );
-    convert( zip, cpath, foutput );
+    convert( zip, cpath, output );
   }
   else
   {
