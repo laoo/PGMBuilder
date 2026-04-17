@@ -3,6 +3,7 @@
 #include "Ex.hpp"
 #include "Log.hpp"
 #include "crypt.hpp"
+#include <cstring>
 
 using namespace std::string_view_literals;
 

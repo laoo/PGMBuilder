@@ -21,7 +21,7 @@ void Log::log( LogLevel ll, std::string const & message )
 	  std::string str;
 	  while (c--)
 	  {
-		  std::cout.put('  ');
+      std::cout << "  ";
 	  }
     std::cout << message;
 #ifdef _WIN32

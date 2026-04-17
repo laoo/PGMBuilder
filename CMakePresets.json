@@ -1,0 +1,16 @@
+{
+    "version": 3,
+    "configurePresets": [
+      {
+        "name": "gcc",
+        "generator": "Unix Makefiles",
+        "binaryDir": "${sourceDir}/out"
+      }
+    ],
+    "buildPresets": [
+      {
+        "name": "gcc",
+        "configurePreset": "gcc"
+      }
+    ]
+}
