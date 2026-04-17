@@ -4,7 +4,7 @@
 #include <Windows.h>
 #endif
 
-Log::Log() : mLogLevel{ NORMAL }
+Log::Log() : mLogLevel{ NORMAL }, mIndent(0)
 {
 }
 
@@ -17,6 +17,12 @@ void Log::log( LogLevel ll, std::string const & message )
 {
   if ( ll >= mLogLevel )
   {
+	  int c = mIndent;
+	  std::string str;
+	  while (c--)
+	  {
+		  std::cout.put('  ');
+	  }
     std::cout << message;
 #ifdef _WIN32
     OutputDebugStringA( message.c_str() );

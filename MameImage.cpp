@@ -2,6 +2,7 @@
 #include "MameDB.hpp"
 #include "Ex.hpp"
 #include "Log.hpp"
+#include "crypt.hpp"
 
 using namespace std::string_view_literals;
 
@@ -15,15 +16,16 @@ pgm::Header buildHeader( GameEntry const& entry )
   pgm::Header header;
 
   std::fill_n( std::bit_cast< char* >( &header ), sizeof( pgm::Header ), 0 );
-  std::copy_n( "IGSPGM", 6, header.magic );
+  std::copy_n( "IGSPGM", 6, header.info.magic );
 
-  header.version = std::byteswap( pgm::IGSPGM_VERSION );
+  header.info.version = std::byteswap( pgm::IGSPGM_VERSION );
 
   std::string_view company{  };
-  std::copy_n( entry.company, std::min( strlen( entry.company ), sizeof( pgm::Header::manufacturer ) ), header.manufacturer );
-  std::copy_n( entry.name.data(), std::min( entry.name.size(), sizeof( pgm::Header::shortName ) ), header.shortName );
-  std::copy_n( entry.fullName, std::min( strlen( entry.fullName ), sizeof( pgm::Header::longName ) ), header.longName );
-  std::copy_n( entry.year, std::min( strlen( entry.year ), sizeof( pgm::Header::year ) ), header.year );
+  std::copy_n( entry.company, std::min( strlen( entry.company ), sizeof( pgm::Header::Info::manufacturer ) ), header.info.manufacturer );
+  std::copy_n( entry.name.data(), std::min( entry.name.size(), sizeof( pgm::Header::Info::shortName ) ), header.info.shortName );
+  std::copy_n( entry.fullName, std::min( strlen( entry.fullName ), sizeof( pgm::Header::Info::longName ) ), header.info.longName );
+  std::copy_n( entry.year, std::min( strlen( entry.year ), sizeof( pgm::Header::Info::year ) ), header.info.year );
+  header.info.hardware = entry.asicClass;
 
   return header;
 }
@@ -64,23 +66,31 @@ std::shared_ptr<MameImage> MameImage::create( std::string const& tpl )
     {
       if ( "maincpu"sv == romEntry.name )
       {
-        type = RomType::P;
+        type = RomType::PRG;
       }
       else if ( "tiles"sv == romEntry.name )
       {
-        type = RomType::T;
+        type = RomType::TLE;
       }
       else if ( "sprcol"sv == romEntry.name )
       {
-        type = RomType::A;
+        type = RomType::SPC;
       }
       else if ( "sprmask"sv == romEntry.name )
       {
-        type = RomType::B;
+        type = RomType::SPM;
       }
       else if ( "ics"sv == romEntry.name )
       {
-        type = RomType::M;
+        type = RomType::AUD;
+      }
+      else if ( "prot"sv == romEntry.name )
+      {
+        type = RomType::INT;
+      }
+      else if ( "user1"sv == romEntry.name )
+      {
+        type = RomType::EXT;
       }
       else
       {
@@ -147,44 +157,62 @@ bool MameImage::isComplete() const
 void MameImage::build( std::filesystem::path const& out ) const
 {
   pgm::Header header = buildHeader( *mGameEntry );
+  pgm::Header::ROMInfo &rom = header.rom;
 
   std::ofstream fout{ out, std::ios::binary };
 
   fout.write( std::bit_cast< char const* >( &header ), sizeof( header ) );
 
   {
-    auto assembly = assembleROM( RomType::P );
-    header.romP.mapping = assembly.begin;
-    header.romP.offset = round512( fout );
-    header.romP.size = assembly.data.size();
+    auto assembly = assembleROM( RomType::PRG );
+    rom.romPRG.mapping = assembly.begin;
+    rom.romPRG.offset = round512( fout );
+    rom.romPRG.size = assembly.data.size();
+    fout.write( std::bit_cast< char const* >( assembly.data.data() ), assembly.data.size() );
+  }
+  
+  {
+    auto assembly = assembleROM( RomType::INT );
+    rom.romINT.mapping = assembly.begin;
+    rom.romINT.offset = round512( fout );
+    rom.romINT.size = assembly.data.size();
+    fout.write( std::bit_cast< char const* >( assembly.data.data() ), assembly.data.size() );
+  }
+
+  {
+    auto assembly = assembleROM( RomType::EXT );
+    rom.romEXT.mapping = assembly.begin;
+    rom.romEXT.offset = round512( fout );
+    rom.romEXT.size = assembly.data.size();
+    fout.write( std::bit_cast< char const* >( assembly.data.data() ), assembly.data.size() );
+  }
+
+  {
+    auto assembly = assembleROM( RomType::TLE );
+    rom.romTLE.mapping = assembly.begin;
+    rom.romTLE.offset = round512( fout );
+    rom.romTLE.size = assembly.data.size();
     fout.write( std::bit_cast< char const* >( assembly.data.data() ), assembly.data.size() );
   }
   {
-    auto assembly = assembleROM( RomType::T );
-    header.romT.mapping = assembly.begin;
-    header.romT.offset = round512( fout );
-    header.romT.size = assembly.data.size();
-    fout.write( std::bit_cast< char const* >( assembly.data.data() ), assembly.data.size() );
-  }
-  {
-    auto assembly = assembleROM( RomType::A );
-    header.romA.mapping = assembly.begin;
-    header.romA.offset = round512( fout );
-    header.romA.size = assembly.data.size();
+    auto assembly = assembleROM( RomType::SPC );
+    rom.romSPC.mapping = assembly.begin;
+    rom.romSPC.offset = round512( fout );
+    rom.romSPC.size = assembly.data.size();
     fout.write( std::bit_cast<char const*>( assembly.data.data() ), assembly.data.size() );
   }
   {
-    auto assembly = assembleROM( RomType::B );
-    header.romB.mapping = assembly.begin;
-    header.romB.offset = round512( fout );
-    header.romB.size = assembly.data.size();
+    auto assembly = assembleROM( RomType::SPM );
+    rom.romSPM.mapping = assembly.begin;
+    rom.romSPM.offset = round512( fout );
+    rom.romSPM.size = assembly.data.size();
     fout.write( std::bit_cast<char const*>( assembly.data.data() ), assembly.data.size() );
   }
   {
-    auto assembly = assembleROM( RomType::M );
-    header.romM.mapping = assembly.begin;
-    header.romM.offset = round512( fout );
-    header.romM.size = assembly.data.size();
+    auto assembly = assembleROM( RomType::AUD );
+    rom.romAUD.mapping = assembly.begin;
+    rom.romAUD.offset = round512( fout );
+    rom.romAUD.size = assembly.data.size();
     fout.write( std::bit_cast<char const*>( assembly.data.data() ), assembly.data.size() );
   }
 
@@ -194,7 +222,10 @@ void MameImage::build( std::filesystem::path const& out ) const
 
 RomAssembly MameImage::assembleROM( RomType type ) const
 {
+	static const char *apROMTypeName[] = { "", "Program", "ASIC27A Internal", "ASIC27A External", "Tile", "Sprite Mask", "Sprite Data", "Audio"};
+
   std::shared_ptr<RawROM> rawRom;
+  int nSlots = 0;
 
   uint32_t beg = std::numeric_limits<uint32_t>::max();
   uint32_t end = std::numeric_limits<uint32_t>::min();
@@ -204,19 +235,57 @@ RomAssembly MameImage::assembleROM( RomType type ) const
     {
       beg = std::min( beg, op.offset );
       end = std::max( end, op.offset + op.length * ( ( ( op.flags & ROM_SKIPMASK ) == ROM_SKIP1 ) ? 2 : 1 ) );
+	  nSlots++;
     }
 
-  RomAssembly result{ beg, end };
+	if (nSlots == 0)
+	{
+		return RomAssembly{0,0};
+	}
+
+	RomAssembly result{ beg, end };
+
+	LOGINDENT;
+	LV << apROMTypeName[(int)type] << " ROMs :";
+	LOGINDENT;
+
+	auto decryptor = getDecryptor( mGameEntry->name, type );
 
   for ( auto const& slot : slotsByType( type ) )
   {
     if ( slot.src )
       rawRom = slot.src;
+
     for ( auto const& op : slot.ops )
     {
+	  LV << rawRom->name << " @ $" << std::hex << op.offset << " " << std::dec << (rawRom->size / ((rawRom->size < (1024 * 1024)) ? 1024 : 1024 * 1024)) << (rawRom->size < (1024 * 1024) ? "KB" : "MB") << (decryptor != 0 ? " (decrypted)":"");
       result.add( mGameEntry->name, type, op, *rawRom );
     }
   }
+
+	// ROM has been loaded and is in the correct endianness for host (BIG)
+	// We actually want the program ROM in word-wise little endian as we're loading it
+	// via a little endian processor with 16bit external data bus
+
+	if (type == RomType::PRG)
+	{
+		uint16_t* data = std::bit_cast< uint16_t* >( result.data.data() );
+		size_t length = result.data.size() / 2;
+		for ( size_t i = 0; i < length; ++i )
+		{
+			data[i] = std::byteswap( data[i] );
+		}
+	}  
+
+	// and we also want the ROM decrypted, so do this now it's all loaded in
+
+	if ( decryptor )
+	{
+		decryptor( std::span<uint8_t>{ result.data.data(), result.data.size() } );
+	}
+
+	LOGOUTDENT;
+	LOGOUTDENT;
 
   return result;
 }

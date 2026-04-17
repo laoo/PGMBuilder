@@ -32,7 +32,7 @@ void Builder::build( std::filesystem::path const& out )
     if ( p.second->isComplete() )
     {
       complete.push_back( p );
-      LN << "\t" << p.first << '\'';
+      LN << "  " << p.first << '\'';
     }
   }
 

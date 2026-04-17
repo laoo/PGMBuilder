@@ -22,6 +22,7 @@ add_executable( PGMBuilder
   RomAssembly.cpp
   crypt.cpp
   crypt/kov/kov_deprotect.cpp
+  crypt/kovsh/kovsh_deprotect.cpp
   crypt/orlegend/orlegend_deprotect.cpp
 )
 

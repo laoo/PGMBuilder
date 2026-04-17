@@ -19,10 +19,14 @@ public:
 
   static Log & instance();
 
+  void indent() { mIndent++; }
+  void outdent() { if (mIndent) mIndent--; }
+
 private:
   Log();
 
   LogLevel mLogLevel;
+  int mIndent;
 };
 
 class Formatter
@@ -45,5 +49,7 @@ private:
 
 #define LV ::Formatter{ ::Log::VERBOSE }
 #define LN ::Formatter{ ::Log::NORMAL }
+#define LOGINDENT ::Log::instance().indent()
+#define LOGOUTDENT ::Log::instance().outdent()
 
 #define LOGLEVEL(LL) ::Log::instance().setLogLevel( LL );

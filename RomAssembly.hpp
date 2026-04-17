@@ -2,12 +2,14 @@
 
 enum struct RomType
 {
-  NONE,
-  P,
-  T,
-  M,
-  B,
-  A
+  NONE = 0,
+  PRG,	// program
+  INT,	// asic27a internal
+  EXT,	// asic27a external
+  TLE,	// tile
+  SPM,	// sprite mask
+  SPC,	// sprite colour
+  AUD	// audio
 };
 
 struct RomOp

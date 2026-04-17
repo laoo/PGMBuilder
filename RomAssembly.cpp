@@ -1,16 +1,7 @@
 #include "RomAssembly.hpp"
 #include "MameDB.hpp"
-#include "crypt.hpp"
 #include "Ex.hpp"
 #include "Log.hpp"
-
-static void decrypt( std::string const& gameName, RomType type, RawROM const& rom )
-{
-  if ( auto decryptor = getDecryptor( gameName, type ) )
-  {
-    decryptor( std::span<uint8_t>{ rom.buffer2.get(), rom.size } );
-  }
-}
 
 RomAssembly::RomAssembly( uint32_t beg, uint32_t end ) :
   begin{ beg }, end{ end }
@@ -22,10 +13,6 @@ void RomAssembly::add( std::string const& gameName, RomType type, RomOp const& o
 {
   assert( ( op.flags & 0x0f ) != mameDB::ROMENTRYTYPE_CONTINUE );
   assert( ( op.flags & 0x0f ) != mameDB::ROMENTRYTYPE_IGNORE );
-
-  decrypt( gameName, type, rom );
-
-  LV << rom.name;
 
   if ( ( op.flags & ROM_GROUPMASK ) )
   {
