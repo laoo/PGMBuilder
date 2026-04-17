@@ -20,27 +20,48 @@ struct Entry
   uint32_t size;
 };
 
+enum AsicClass
+{
+  pgm_state = 0,
+  pgm_asic3_state,
+  pgm_012_025_state,
+  pgm_022_025_state,
+  pgm_arm_type1_state,
+  pgm_arm_type2_state,
+  pgm_arm_type3_state,
+  pgm_028_025_state
+};
+
 struct Header
 {
-  char magic[6];          //"IGSPGM"
-  uint16_t version;       //version number in BCD BE format, 01.23 encoded as $0123
-  char manufacturer[16];  //name of the manufacturer
-  char shortName[16];     //name of the cart in MAME style
-  char longName[128];     //long descriptive name
-  char year[4];          //year of publishing as a string
-  uint32_t genre;
-  uint32_t coverOffset;           //offset to the CoverImage structure
-  uint32_t screenshotsOffsets[8]; //table of offset (up to 8) to ScreenshotImage structure
+  struct Info
+  {
+    char magic[6];          //"IGSPGM"
+    uint16_t version;       //version number in BCD BE format, 01.23 encoded as $0123
+    char manufacturer[16];  //name of the manufacturer
+    char shortName[16];     //name of the cart in MAME style
+    char longName[128];     //long descriptive name
+    char year[4];           //year of publishing as a string
+    uint32_t hardware;      //currently just protection type (AsicClass)
+    uint32_t genre;
+    uint32_t coverOffset;           //offset to the CoverImage structure
+    uint32_t screenshotsOffsets[8]; //table of offset (up to 8) to ScreenshotImage structure
+  } info;
 
-  uint8_t filler1[300];   //fill to 512
+  uint8_t filler1[512-sizeof(info)];   //fill to 512
 
-  Entry romP;
-  Entry romT;
-  Entry romM;
-  Entry romB;
-  Entry romA;
+  struct ROMInfo
+  {
+    Entry romPRG;			// 68k program rom
+    Entry romINT;			// ASIC27A internal
+    Entry romEXT;			// ASIC27A external
+    Entry romTLE;			// Tile
+    Entry romSPC;			// Sprite colour
+    Entry romSPM;			// Sprite mask
+    Entry romAUD;			// Audio
+  } rom;
 
-  uint8_t filler2[452];   //fill to 1024
+  uint8_t filler2[512-sizeof(rom)];   //fill to 1024
 };
 
 template<size_t WIDTH, size_t HEIGHT>
@@ -77,4 +98,5 @@ typedef Image<112, 56> ScreenshotImage;
 
 static constexpr size_t coverSize = sizeof( CoverImage );           //14884
 static constexpr size_t screenshotSize = sizeof( ScreenshotImage ); //6820
+}
 ```
