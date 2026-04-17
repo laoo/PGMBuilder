@@ -33,6 +33,15 @@ if (WIN32)
 
   target_compile_definitions( PGMBuilder PRIVATE -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE )
 
+else()
+
+  target_compile_options( PGMBuilder PRIVATE
+    -Wpedantic
+    -Wall
+    -Wextra
+    -O2
+  )
+
 endif()
 
 target_precompile_headers( PGMBuilder PRIVATE

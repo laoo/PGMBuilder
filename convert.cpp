@@ -39,7 +39,7 @@ static void convert( zip_t* zip, char const* cpath, std::filesystem::path const&
   builder.build( output );
 }
 
-void convert( std::filesystem::path const& input, std::filesystem::path const& output, ProgramOptions const& opt )
+void convert( std::filesystem::path const& input, std::filesystem::path const& output, [[maybe_unused]] ProgramOptions const& opt )
 {
   auto gstring = input.generic_string();
   auto cpath = gstring.c_str();

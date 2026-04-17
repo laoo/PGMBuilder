@@ -24,9 +24,9 @@ private:
   struct ROMSlot
   {
     RomType type;
-    uint32_t crc;
+    uint32_t crc = {};
     std::shared_ptr<RawROM> src = {};
-    std::vector<RomOp> ops;
+    std::vector<RomOp> ops = {};
   };
 
   std::shared_ptr<GameEntry> mGameEntry;

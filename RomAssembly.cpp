@@ -9,7 +9,7 @@ RomAssembly::RomAssembly( uint32_t beg, uint32_t end ) :
   data.resize( end - begin );
 }
 
-void RomAssembly::add( std::string const& gameName, RomType type, RomOp const& op, RawROM const& rom )
+void RomAssembly::add( [[maybe_unused]] std::string const& gameName, [[maybe_unused]] RomType type, RomOp const& op, RawROM const& rom )
 {
   assert( ( op.flags & 0x0f ) != mameDB::ROMENTRYTYPE_CONTINUE );
   assert( ( op.flags & 0x0f ) != mameDB::ROMENTRYTYPE_IGNORE );
