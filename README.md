@@ -98,5 +98,4 @@ typedef Image<112, 56> ScreenshotImage;
 
 static constexpr size_t coverSize = sizeof( CoverImage );           //14884
 static constexpr size_t screenshotSize = sizeof( ScreenshotImage ); //6820
-}
 ```
