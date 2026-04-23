@@ -1,16 +1,37 @@
 {
-    "version": 3,
-    "configurePresets": [
-      {
-        "name": "gcc",
-        "generator": "Unix Makefiles",
-        "binaryDir": "${sourceDir}/out"
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "gcc-linux",
+      "displayName": "GCC (Linux)",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
       }
-    ],
-    "buildPresets": [
-      {
-        "name": "gcc",
-        "configurePreset": "gcc"
+    },
+    {
+      "name": "vs-windows",
+      "displayName": "MSVC (Visual Studio)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
       }
-    ]
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "gcc-linux",
+      "configurePreset": "gcc-linux"
+    },
+    {
+      "name": "vs-windows",
+      "configurePreset": "vs-windows"
+    }
+  ]
 }
