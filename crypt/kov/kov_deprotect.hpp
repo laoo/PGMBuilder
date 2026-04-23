@@ -2,6 +2,6 @@
 namespace crypt
 {
 
-void kov( std::span<uint8_t> rom );
+void kov_prg( std::span<uint8_t> rom );
 
 }

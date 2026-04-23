@@ -200,7 +200,7 @@ static void kov_patch( std::span<uint8_t> src )
 namespace crypt
 {
 
-void kov( std::span<uint8_t> rom )
+void kov_prg( std::span<uint8_t> rom )
 {
 	pgm_decrypt_kov( rom );
 	kov_patch( rom );

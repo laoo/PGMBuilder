@@ -1,5 +1,3 @@
-// KOV deprotection written by IQ_132
-
 #include <algorithm>
 #include <stdio.h>
 #include <string.h>
@@ -8,7 +6,7 @@
 void pgm_decrypt_dw2(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	size_t const rom_size = rom.size();
+	int const rom_size = rom.size();
 
 	for (uint32_t i = 0; i<rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -25,7 +23,7 @@ void pgm_decrypt_dw2(std::span<uint8_t> rom)
 void pgm_decrypt_dw3(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	size_t const rom_size = rom.size();
+	int const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -42,7 +40,7 @@ void pgm_decrypt_dw3(std::span<uint8_t> rom)
 void pgm_decrypt_killbld(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	size_t const rom_size = rom.size();
+	int const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -85,7 +83,7 @@ static const uint8_t kov_tab[256] = {
 void pgm_decrypt_kov(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	size_t const rom_size = rom.size();
+	int const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -127,7 +125,7 @@ static const uint8_t kovsh_tab[256] = {
 void pgm_decrypt_kovsh(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	size_t const rom_size = rom.size();
+	int const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -169,7 +167,7 @@ static const uint8_t kovshp_tab[256] = {
 void pgm_decrypt_kovshp(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	size_t const rom_size = rom.size();
+	int const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -211,7 +209,7 @@ static const uint8_t photoy2k_tab[256] = {
 void pgm_decrypt_photoy2k(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	size_t const rom_size = rom.size();
+	int const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -253,7 +251,7 @@ static const uint8_t puzlstar_tab[256] = {
 void pgm_decrypt_puzlstar(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	size_t const rom_size = rom.size();
+	int const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -294,7 +292,7 @@ static const uint8_t puzzli2_tab[256] = {
 void pgm_decrypt_puzzli2(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	size_t const rom_size = rom.size();
+	int const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -336,7 +334,7 @@ static const uint8_t oldsplus_tab[256] = {
 void pgm_decrypt_oldsplus(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	size_t const rom_size = rom.size();
+	int const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -378,7 +376,14 @@ static const uint8_t py2k2_tab[256] = {
 void pgm_decrypt_py2k2(std::span<uint8_t> rom) // and ddp3
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	size_t const rom_size = rom.size();
+	int rom_size = rom.size();
+	
+	// skip ddp3 bios
+	if (rom_size == 0x300000)
+	{
+		rom_size = 0x200000;
+		src += 0x100000/2;
+	}
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -420,7 +425,7 @@ static const uint8_t ketsui_tab[256] = {
 void pgm_decrypt_ketsui(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	size_t const rom_size = rom.size();
+	int const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -462,7 +467,7 @@ static const uint8_t espgal_tab[256] = {
 void pgm_decrypt_espgaluda(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	size_t const rom_size = rom.size();
+	int const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -485,7 +490,7 @@ void pgm_decrypt_espgaluda(std::span<uint8_t> rom)
 void pgm_decrypt_svg(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	size_t const rom_size = rom.size();
+	int const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -527,7 +532,7 @@ static const uint8_t svgpcb_tab[0x100] = {
 void pgm_decrypt_svgpcb(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	size_t const rom_size = rom.size();
+	int const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -569,7 +574,7 @@ static uint8_t dfront_tab[256] = {
 void pgm_decrypt_dfront(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	size_t const rom_size = rom.size();
+	int const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 	    uint16_t x = (src[i]);
@@ -611,7 +616,7 @@ static uint8_t ddp2_tab[256] = {
 void pgm_decrypt_ddp2(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	size_t const rom_size = rom.size();
+	int const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
     	uint16_t x = (src[i]);
@@ -651,7 +656,7 @@ static uint8_t mm_tab[256] = {
 void pgm_decrypt_martmast(std::span<uint8_t> rom) // and dw2001
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	size_t const rom_size = rom.size();
+	int const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
     	uint16_t x = (src[i]);
@@ -675,7 +680,7 @@ void pgm_decrypt_martmast(std::span<uint8_t> rom) // and dw2001
 void pgm_decrypt_dwpc(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	size_t const rom_size = rom.size();
+	int const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
     	uint16_t x = (src[i]);
@@ -717,7 +722,7 @@ static const uint8_t kov2_tab[256] = {
 void pgm_decrypt_kov2(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	size_t const rom_size = rom.size();
+	int const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
     	uint16_t x = (src[i]);
@@ -758,7 +763,7 @@ static const uint8_t kov2p_tab[256] = {
 void pgm_decrypt_kov2p(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	size_t const rom_size = rom.size();
+	int const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -800,7 +805,7 @@ static const uint8_t theglad_tab[256] = {
 void pgm_decrypt_theglad(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	size_t const rom_size = rom.size();
+	int const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -842,7 +847,7 @@ static const uint8_t killbldp_tab[] = {
 void pgm_decrypt_killbldp(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	size_t const rom_size = rom.size();
+	int const rom_size = rom.size();
 
 	for (uint32_t i = 0; i< rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -884,7 +889,7 @@ static const uint8_t happy6in1_tab[256] = {
 void pgm_decrypt_happy6(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	size_t const rom_size = rom.size();
+	int const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -926,7 +931,7 @@ static const uint8_t pgm3in1_tab[256] = {
 void pgm_decrypt_pgm3in1(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	size_t const rom_size = rom.size();
+	int const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -946,17 +951,324 @@ void pgm_decrypt_pgm3in1(std::span<uint8_t> rom)
 	}
 }
 
+// patch the partial dump of the internal ROM for theglad to allow it to run
+// ref: MAME pgm_arm_type3_state::pgm_create_dummy_internal_arm_region_theglad
 
+void pgm_fixup_partial_int_rom(std::span<uint8_t> rom, bool is_svg)
+{
+	uint16_t *temp16 = (uint16_t *)rom.data();
+	for (int i = 0; i < 0x188 / 2; i += 2)
+	{
+		temp16[i] = 0xFFFE;
+		temp16[i+1] = 0xEAFF;
+	}
+
+	// the interrupt code appears to be at 0x08000010
+	// so point the FIQ vector to jump there, the actual internal EO area code
+	// would not look like this because this reads from the EO area to get the jump address which is verified
+	// as impossible
+	int base = 0x1c;
+	temp16[(base) /2] = 0xf000; base += 2;
+	temp16[(base) /2] = 0xe59f; base += 2;
+
+	if (is_svg == 0)
+	{
+		temp16[(base) / 2] = 0x0010; base += 2;
+		temp16[(base) / 2] = 0x0800; base += 2;
+		temp16[(base) / 2] = 0x0010; base += 2;
+		temp16[(base) / 2] = 0x0800; base += 2;
+	}
+	else
+	{
+		temp16[(base) / 2] = 0x0038; base += 2;
+		temp16[(base) / 2] = 0x0800; base += 2;
+		temp16[(base) / 2] = 0x0038; base += 2;
+		temp16[(base) / 2] = 0x0800; base += 2;
+	}
+
+	// some startup code to set up the stacks etc. we're assuming
+	// behavior is basically the same as killing blade plus here, this code
+	// could be very wrong
+	base = 0x30;
+
+	temp16[(base) /2] = 0x00D2; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0xF000; base += 2;
+	temp16[(base) /2] = 0xE121; base += 2;
+
+	temp16[(base) /2] = 0x4001; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0x4B06; base += 2;
+	temp16[(base) /2] = 0xE284; base += 2;
+	temp16[(base) /2] = 0x0CFA; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0xD804; base += 2;
+	temp16[(base) /2] = 0xE080; base += 2;
+	temp16[(base) /2] = 0x00D1; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0xF000; base += 2;
+	temp16[(base) /2] = 0xE121; base += 2;
+	temp16[(base) /2] = 0x0CF6; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0xD804; base += 2;
+	temp16[(base) /2] = 0xE080; base += 2;
+	temp16[(base) /2] = 0x00D7; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0xF000; base += 2;
+	temp16[(base) /2] = 0xE121; base += 2;
+	temp16[(base) /2] = 0x0CFF; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0xD804; base += 2;
+	temp16[(base) /2] = 0xE080; base += 2;
+	temp16[(base) /2] = 0x00DB; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0xF000; base += 2;
+	temp16[(base) /2] = 0xE121; base += 2;
+	temp16[(base) /2] = 0x4140; base += 2;
+	temp16[(base) /2] = 0xE1C4; base += 2;
+	temp16[(base) /2] = 0x0CFE; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0xD804; base += 2;
+	temp16[(base) /2] = 0xE080; base += 2;
+	temp16[(base) /2] = 0x00D3; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0xF000; base += 2;
+
+	temp16[(base) /2] = 0xE121; base += 2;
+	temp16[(base) /2] = 0x4A01; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0x0B01; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0xD804; base += 2;
+	temp16[(base) /2] = 0xE080; base += 2;
+	temp16[(base) /2] = 0x5A0F; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0x0008; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0x8805; base += 2;
+	temp16[(base) /2] = 0xE080; base += 2;
+	temp16[(base) /2] = 0x0010; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0x0000; base += 2;
+	temp16[(base) /2] = 0xE5C8; base += 2;
+	temp16[(base) /2] = 0x7805; base += 2;
+	temp16[(base) /2] = 0xE1A0; base += 2;
+	temp16[(base) /2] = 0x6A01; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0x0012; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0x0A02; base += 2;
+	temp16[(base) /2] = 0xE280; base += 2;
+	temp16[(base) /2] = 0x6806; base += 2;
+	temp16[(base) /2] = 0xE080; base += 2;
+	temp16[(base) /2] = 0x6000; base += 2;
+	temp16[(base) /2] = 0xE587; base += 2;
+
+	// set the SR13 to something sensible
+	temp16[(base) /2] = 0x00D3; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0xF000; base += 2;
+	temp16[(base) /2] = 0xE121; base += 2;
+	temp16[(base) /2] = 0x4001; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0x4B06; base += 2;
+	temp16[(base) /2] = 0xE284; base += 2;
+	temp16[(base) /2] = 0x0CF2; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0xD804; base += 2;
+	temp16[(base) /2] = 0xE080; base += 2;
+
+	temp16[(base) /2] = 0x0013; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0xF000; base += 2;
+	temp16[(base) /2] = 0xE121; base += 2;
+
+
+	temp16[(base) / 2] = 0x0028; base += 2; // jump to 0x184
+	temp16[(base) / 2] = 0xEA00; base += 2;
+
+
+	base = 0;
+	temp16[(base) /2] = 0x000a; base += 2;
+	temp16[(base) /2] = 0xEA00; base += 2;
+
+	// see table at ~080824A4 in The Gladiator (ARM space)
+	// there are pointers to
+	// 0000 00FC
+	// 0000 00E8
+	// 0000 0110
+	// 0000 0150
+	// in the table.. for e8 / fc we can deduce from the calling code and size of the functions expected that they should be the
+	// same as those in the killing blade plus 'killbldp'  (there are also explicit jumps to these addresses in the code)
+	//
+	// 0x110 is called after the 'continue' screen, and on inserting coin, I guess it should change the game state, causing it to jump to the title screen when you insert a coin, and back to the attract after the game.. some kind of 'soft reset'
+	// 0x150 I haven't seen called, I guess it is 0x38 in size because the execute-only area ends at 0x188
+
+
+	base = 0xe8;
+	temp16[(base) /2] = 0xE004; base += 2; // based on killbldp
+	temp16[(base) /2] = 0xE52D; base += 2;
+	temp16[(base) /2] = 0x00D3; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0xF000; base += 2;
+	temp16[(base) /2] = 0xE121; base += 2;
+	temp16[(base) /2] = 0xE004; base += 2;
+	temp16[(base) /2] = 0xE49D; base += 2;
+	temp16[(base) /2] = 0xFF1E; base += 2;
+	temp16[(base) /2] = 0xE12F; base += 2;
+
+//  base = 0xfc; // already at 0xfc
+	temp16[(base) /2] = 0xE004; base += 2; // based on killbldp
+	temp16[(base) /2] = 0xE52D; base += 2;
+	temp16[(base) /2] = 0x0013; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0xF000; base += 2;
+	temp16[(base) /2] = 0xE121; base += 2;
+	temp16[(base) /2] = 0xE004; base += 2;
+	temp16[(base) /2] = 0xE49D; base += 2;
+	temp16[(base) /2] = 0xFF1E; base += 2;
+	temp16[(base) /2] = 0xE12F; base += 2;
+
+//  base = 0x110; // already at 0x110
+//  temp16[(base) /2] = 0xff1e; base += 2;
+//  temp16[(base) /2] = 0xe12f; base += 2;
+//  temp16[(base) /2] = 0xf302; base += 2;
+//  temp16[(base) /2] = 0xe3a0; base += 2;
+	// set up stack again, soft-reset reset with a ram variable set to 0
+	temp16[(base) /2] = 0x00D1; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0xF000; base += 2;
+	temp16[(base) /2] = 0xE121; base += 2;
+	temp16[(base) /2] = 0xD0b8; base += 2;
+	temp16[(base) /2] = 0xE59F; base += 2;
+	temp16[(base) /2] = 0x00D3; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0xF000; base += 2;
+	temp16[(base) /2] = 0xE121; base += 2;
+	temp16[(base) /2] = 0xD0b0; base += 2;
+	temp16[(base) /2] = 0xE59F; base += 2;
+	temp16[(base) /2] = 0x10b8; base += 2;
+	temp16[(base) /2] = 0xE59F; base += 2;
+	temp16[(base) /2] = 0x0000; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0x0000; base += 2;
+	temp16[(base) /2] = 0xE581; base += 2;
+	if (is_svg == 0)
+	{ // jump to start of external rom
+		temp16[(base) / 2] = 0xF302; base += 2;
+		temp16[(base) / 2] = 0xE3A0; base += 2;
+	}
+	else
+	{
+		temp16[(base) / 2] = 0xf0b0; base += 2;
+		temp16[(base) / 2] = 0xe59f; base += 2;
+	}
+
+	base = 0x150;
+	temp16[(base) /2] = 0xff1e; base += 2;
+	temp16[(base) /2] = 0xe12f; base += 2;
+
+	// the non-EO area starts in the middle of a function that seems similar to those at 000037E4 / 000037D4 in killbldp. by setting this up we allow the intro to run
+	// it sets '0x10000038' to a value of 1
+	base = 0x184;
+	temp16[(base) /2] = 0x105c; base += 2;
+	temp16[(base) /2] = 0xE59F; base += 2;
+}
+
+// create internal rom which just passes control to the extneral rom
+// where no internal rom exists, or is called back to
+// ref: MAME pgm_create_dummy_internal_arm_region
+
+void pgm_create_dummy_internal_arm_region(std::span<uint8_t> rom, int size)
+{
+	unsigned short *temp16 = (unsigned short*) rom.data();
+	// fill with RX 14
+	for (int i = 0; i < size / 2; i += 2)
+	{
+		temp16[i] = 0xff1e;
+		temp16[i+1] = 0xe12f;
+
+	}
+
+	// jump straight to external area
+	temp16[(0x0000)/2] = 0xd088;
+	temp16[(0x0002)/2] = 0xe59f;
+	temp16[(0x0004)/2] = 0x0680;
+	temp16[(0x0006)/2] = 0xe3a0;
+	temp16[(0x0008)/2] = 0xff10;
+	temp16[(0x000a)/2] = 0xe12f;
+	temp16[(0x0090)/2] = 0x0400;
+	temp16[(0x0092)/2] = 0x1000;
+}
+
+/* Dragon World 2 */
+
+void pgm_drgw2_decrypt_prg(std::span<uint8_t> rom)
+{
+	uint16_t *src = (uint16_t *) rom.data();
+
+	int rom_size = 0x80000;
+
+	for (int i = 0; i < rom_size / 2; i++)
+	{
+		uint16_t x = src[i];
+
+		if (((i & 0x20890) == 0) || ((i & 0x20000) == 0x20000 && (i & 0x01500) != 0x01400))
+			x ^= 0x0002;
+
+		if (((i & 0x20400) == 0 && (i & 0x02010) != 0x02010) || ((i & 0x20000) == 0x20000 && (i & 0x00148) != 0x00140))
+			x ^= 0x0400;
+
+		src[i] = x;
+	}
+}
+
+// todo, collapse these to an address swap
+void pgm_descramble_happy6(uint8_t* src)
+{
+	std::vector<uint8_t> buffer(0x800000);
+	int writeaddress = 0;
+
+	for (int j = 0; j < 0x800; j += 0x200)
+	{
+		for (int i = j; i < 0x800000; i += 0x800)
+		{
+			memcpy(&buffer[writeaddress], src + i, 0x200);
+			writeaddress += 0x200;
+		}
+	}
+	memcpy(src, &buffer[0], 0x800000);
+}
+
+
+
+void pgm_descramble_happy6_2(uint8_t* src)
+{
+	std::vector<uint8_t> buffer(0x800000);
+	int writeaddress = 0;
+	for (int k = 0; k < 0x800000; k += 0x100000)
+	{
+		for (int j = 0; j < 0x40000; j += 0x10000)
+		{
+			for (int i = j; i < 0x100000; i += 0x40000)
+			{
+				memcpy(&buffer[writeaddress], src + i + k, 0x10000);
+				writeaddress += 0x10000;
+			}
+		}
+	}
+	memcpy(src, &buffer[0], 0x800000);
+}
 
 namespace crypt
 {
 
-void kovsh( std::span<uint8_t> rom )
+void kovsh_prg( std::span<uint8_t> rom )
 {
 	pgm_decrypt_kovsh( rom );
 }
 
-void photoy2k( std::span<uint8_t> rom )
+void photoy2k_prg( std::span<uint8_t> rom )
 {
 	pgm_decrypt_photoy2k( rom );
 }
@@ -974,6 +1286,76 @@ void ddp2_ext(std::span<uint8_t> rom)
 void killbldp_ext(std::span<uint8_t> rom)
 {
 	pgm_decrypt_killbldp( rom );
+}
+
+void theglad_ext(std::span<uint8_t> rom)
+{
+	pgm_decrypt_theglad( rom );
+}
+
+void theglad_int(std::span<uint8_t> rom)
+{
+	pgm_fixup_partial_int_rom( rom, false );
+}
+
+void dmnfrnt_ext(std::span<uint8_t> rom)
+{
+	pgm_decrypt_dfront( rom );
+}
+
+void dmnfrnt_int(std::span<uint8_t> rom)
+{
+	pgm_create_dummy_internal_arm_region( rom, 0x4000 );
+}
+
+void drgw2_prg(std::span<uint8_t> rom)
+{
+	pgm_drgw2_decrypt_prg( rom );
+}
+
+void ddp3_prg(std::span<uint8_t> rom)
+{
+	// ddp3 has a BIOS image, we just want to decrypt the main game part
+	pgm_decrypt_py2k2( rom );
+}
+
+void dw2001_ext(std::span<uint8_t> rom)
+{
+	// dw2001 is the same as martmast
+	pgm_decrypt_martmast( rom );
+}
+
+void svg_ext(std::span<uint8_t> rom)
+{
+	pgm_decrypt_svg( rom );
+}
+
+void svg_int(std::span<uint8_t> rom)
+{
+	pgm_fixup_partial_int_rom( rom, true );
+}
+
+void happy6_ext(std::span<uint8_t> rom)
+{
+	pgm_decrypt_happy6( rom );
+}
+
+void happy6_int(std::span<uint8_t> rom)
+{
+	pgm_fixup_partial_int_rom( rom, false );
+}
+
+void happy6_data(std::span<uint8_t> rom)
+{
+	pgm_descramble_happy6(rom.data());
+	pgm_descramble_happy6_2(rom.data());
+
+	// sprite colour is in two blocks
+	if (rom.size() > 0x800000)
+	{
+		pgm_descramble_happy6(rom.data() + 0x800000);
+		pgm_descramble_happy6_2(rom.data() + 0x800000);
+	}
 }
 
 }

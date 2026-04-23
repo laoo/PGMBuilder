@@ -2,6 +2,6 @@
 namespace crypt
 {
 
-void orlegend( std::span<uint8_t> rom );
+void orlegend_prg( std::span<uint8_t> rom );
 
 }

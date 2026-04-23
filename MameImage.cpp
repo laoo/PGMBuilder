@@ -3,7 +3,6 @@
 #include "Ex.hpp"
 #include "Log.hpp"
 #include "crypt.hpp"
-#include <cstring>
 
 using namespace std::string_view_literals;
 
@@ -103,9 +102,13 @@ std::shared_ptr<MameImage> MameImage::create( std::string const& tpl )
       if ( type == RomType::NONE )
         continue;
       ROMSlot slot{ type };
-      if ( romEntry.hashdata == nullptr || romEntry.hashdata[0] == '!' )
+	  
+	  // when hashdata[0] == '!' this means there is no dump, this isn't the end
+	  // of the world so allow processing to continue
+      if ( romEntry.hashdata == nullptr )
         return {};
-      slot.crc = parseCRC( romEntry.hashdata + ( romEntry.hashdata[0] == 'R' ? 1 : 2 ) );
+      
+	  slot.crc = parseCRC( romEntry.hashdata + ( romEntry.hashdata[0] == 'R' ? 1 : 2 ) );
       slot.ops.emplace_back( romEntry.offset, romEntry.length, romEntry.flags );
       slots.push_back( slot );
     }
@@ -146,7 +149,9 @@ bool MameImage::isComplete() const
 {
   for ( auto& slot : mSlots )
   {
-    if ( !slot.src )
+    // allow empy ASIC27A INT ROM slots if they are NO_DUMP (crc 0)
+	// we can see if this is fixable later
+    if ( !slot.src && !((slot.type == RomType::INT) && (slot.crc == 0)))
     {
       return false;
     }
@@ -223,9 +228,35 @@ void MameImage::build( std::filesystem::path const& out ) const
 
 RomAssembly MameImage::assembleROM( RomType type ) const
 {
-	static const char *apROMTypeName[] = { "", "Program", "ASIC27A Internal", "ASIC27A External", "Tile", "Sprite Mask", "Sprite Data", "Audio"};
-
+	static const char *apROMTypeName[] = { "", "Program", "ASIC27A Internal", "ASIC27A External", "Tile", "Sprite Mask", "Sprite Colour", "Audio"};
   std::shared_ptr<RawROM> rawRom;
+
+  // pre-parse INT ROMs and make sure there is an entry for NO_DUMPs
+  if (type == RomType::INT)
+  {
+	  ROMSlot* romSlot = 0;
+	  for ( auto & slot : slotsByType( type ) )
+	  {
+		if ( !slot.src )
+		  romSlot = (ROMSlot*) &slot;
+
+		if ( slot.src )
+		  rawRom = slot.src;
+	  }
+
+	  // if we dont have a rom, create a blank section
+	  if (!rawRom && romSlot)
+	  {
+			RawROM rom{};
+			rom.name = "NO_DUMP";
+			rom.crc = 0;
+			rom.size = 0x4000;
+			rom.buffer2.reset( new uint8_t[0x4000], std::default_delete<uint8_t[]>() );
+			romSlot->src = std::make_shared<RawROM>( std::move( rom ) );
+	  }
+	  rawRom = 0;
+  }
+
   int nSlots = 0;
 
   uint32_t beg = std::numeric_limits<uint32_t>::max();
@@ -257,9 +288,21 @@ RomAssembly MameImage::assembleROM( RomType type ) const
     if ( slot.src )
       rawRom = slot.src;
 
+	// for cases where we have an empy raw rom for NO_DUMP partial load areas
+	if (!rawRom)
+	  continue;
+
     for ( auto const& op : slot.ops )
     {
-	  LV << rawRom->name << " @ $" << std::hex << op.offset << " " << std::dec << (rawRom->size / ((rawRom->size < (1024 * 1024)) ? 1024 : 1024 * 1024)) << (rawRom->size < (1024 * 1024) ? "KB" : "MB") << (decryptor != 0 ? " (decrypted)":"");
+	  LV  << rawRom->name 
+		  << " @ $" 
+		  << std::hex 
+		  << op.offset 
+		  << " " 
+		  << std::dec 
+		  << ((rawRom->size == 0) ? 0 : (rawRom->size / ((rawRom->size < (1024 * 1024)) ? 1024 : 1024 * 1024)))
+		  << ((rawRom->size == 0) ? 0 : (rawRom->size < (1024 * 1024) ? "KB" : "MB")) 
+		  << (decryptor != 0 ? " (patched)":"");
       result.add( mGameEntry->name, type, op, *rawRom );
     }
   }
