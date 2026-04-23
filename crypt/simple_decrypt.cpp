@@ -6,7 +6,7 @@
 void pgm_decrypt_dw2(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	int const rom_size = rom.size();
+	uint32_t const rom_size = rom.size();
 
 	for (uint32_t i = 0; i<rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -23,7 +23,7 @@ void pgm_decrypt_dw2(std::span<uint8_t> rom)
 void pgm_decrypt_dw3(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	int const rom_size = rom.size();
+	uint32_t const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -40,7 +40,7 @@ void pgm_decrypt_dw3(std::span<uint8_t> rom)
 void pgm_decrypt_killbld(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	int const rom_size = rom.size();
+	uint32_t const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -83,7 +83,7 @@ static const uint8_t kov_tab[256] = {
 void pgm_decrypt_kov(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	int const rom_size = rom.size();
+	uint32_t const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -125,7 +125,7 @@ static const uint8_t kovsh_tab[256] = {
 void pgm_decrypt_kovsh(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	int const rom_size = rom.size();
+	uint32_t const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -167,7 +167,7 @@ static const uint8_t kovshp_tab[256] = {
 void pgm_decrypt_kovshp(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	int const rom_size = rom.size();
+	uint32_t const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -209,7 +209,7 @@ static const uint8_t photoy2k_tab[256] = {
 void pgm_decrypt_photoy2k(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	int const rom_size = rom.size();
+	uint32_t const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -251,7 +251,7 @@ static const uint8_t puzlstar_tab[256] = {
 void pgm_decrypt_puzlstar(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	int const rom_size = rom.size();
+	uint32_t const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -292,7 +292,7 @@ static const uint8_t puzzli2_tab[256] = {
 void pgm_decrypt_puzzli2(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	int const rom_size = rom.size();
+	uint32_t const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -334,7 +334,7 @@ static const uint8_t oldsplus_tab[256] = {
 void pgm_decrypt_oldsplus(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	int const rom_size = rom.size();
+	uint32_t const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -376,7 +376,7 @@ static const uint8_t py2k2_tab[256] = {
 void pgm_decrypt_py2k2(std::span<uint8_t> rom) // and ddp3
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	int rom_size = rom.size();
+	uint32_t rom_size = rom.size();
 	
 	// skip ddp3 bios
 	if (rom_size == 0x300000)
@@ -425,7 +425,7 @@ static const uint8_t ketsui_tab[256] = {
 void pgm_decrypt_ketsui(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	int const rom_size = rom.size();
+	uint32_t const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -467,7 +467,7 @@ static const uint8_t espgal_tab[256] = {
 void pgm_decrypt_espgaluda(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	int const rom_size = rom.size();
+	uint32_t const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -490,7 +490,7 @@ void pgm_decrypt_espgaluda(std::span<uint8_t> rom)
 void pgm_decrypt_svg(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	int const rom_size = rom.size();
+	uint32_t const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -532,7 +532,7 @@ static const uint8_t svgpcb_tab[0x100] = {
 void pgm_decrypt_svgpcb(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	int const rom_size = rom.size();
+	uint32_t const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -574,7 +574,7 @@ static uint8_t dfront_tab[256] = {
 void pgm_decrypt_dfront(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	int const rom_size = rom.size();
+	uint32_t const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 	    uint16_t x = (src[i]);
@@ -616,7 +616,7 @@ static uint8_t ddp2_tab[256] = {
 void pgm_decrypt_ddp2(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	int const rom_size = rom.size();
+	uint32_t const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
     	uint16_t x = (src[i]);
@@ -656,7 +656,7 @@ static uint8_t mm_tab[256] = {
 void pgm_decrypt_martmast(std::span<uint8_t> rom) // and dw2001
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	int const rom_size = rom.size();
+	uint32_t const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
     	uint16_t x = (src[i]);
@@ -680,7 +680,7 @@ void pgm_decrypt_martmast(std::span<uint8_t> rom) // and dw2001
 void pgm_decrypt_dwpc(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	int const rom_size = rom.size();
+	uint32_t const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
     	uint16_t x = (src[i]);
@@ -722,7 +722,7 @@ static const uint8_t kov2_tab[256] = {
 void pgm_decrypt_kov2(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	int const rom_size = rom.size();
+	uint32_t const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
     	uint16_t x = (src[i]);
@@ -763,7 +763,7 @@ static const uint8_t kov2p_tab[256] = {
 void pgm_decrypt_kov2p(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	int const rom_size = rom.size();
+	uint32_t const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -805,7 +805,7 @@ static const uint8_t theglad_tab[256] = {
 void pgm_decrypt_theglad(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	int const rom_size = rom.size();
+	uint32_t const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -847,7 +847,7 @@ static const uint8_t killbldp_tab[] = {
 void pgm_decrypt_killbldp(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	int const rom_size = rom.size();
+	uint32_t const rom_size = rom.size();
 
 	for (uint32_t i = 0; i< rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -889,7 +889,7 @@ static const uint8_t happy6in1_tab[256] = {
 void pgm_decrypt_happy6(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	int const rom_size = rom.size();
+	uint32_t const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 		uint16_t x = (src[i]);
@@ -931,7 +931,7 @@ static const uint8_t pgm3in1_tab[256] = {
 void pgm_decrypt_pgm3in1(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
-	int const rom_size = rom.size();
+	uint32_t const rom_size = rom.size();
 
 	for (uint32_t i = 0; i < rom_size/2; i++) {
 		uint16_t x = (src[i]);
