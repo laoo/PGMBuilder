@@ -165,7 +165,7 @@ bool MameImage::isComplete() const
 void MameImage::build( std::filesystem::path const& out ) const
 {
   pgm::Header header = buildHeader( *mGameEntry );
-  header.info.entriesOffset = 0;
+  header.info.entries = 0;
   header.info.entriesCount = 0;
 
   struct ROMSection
@@ -230,10 +230,10 @@ void MameImage::build( std::filesystem::path const& out ) const
       throw Ex{} << "Too many entries";
     }
 
-    header.info.entriesOffset = kEntriesOffset;
+    header.info.entries = kEntriesOffset;
     header.info.entriesCount = static_cast<uint32_t>( entries.size() );
 
-    fout.seekp( header.info.entriesOffset );
+    fout.seekp( header.info.entries );
     fout.write( std::bit_cast<char const*>( entries.data() ), entriesBytes );
   }
 

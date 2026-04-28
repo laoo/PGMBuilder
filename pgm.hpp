@@ -45,19 +45,20 @@ struct Header
 {
   struct Info
   {
-    char magic[6];          //"IGSPGM"
-    uint16_t version;       //version number in BCD BE format, 01.23 encoded as $0123
-    uint32_t infoSize;      //sizeof(Info)
-    char manufacturer[16];  //name of the manufacturer
-    char shortName[16];     //name of the cart in MAME style
-    char longName[128];     //long descriptive name
-    char year[4];           //year of publishing as a string
-    uint32_t hardware;      //currently just protection type (AsicClass)
+    char magic[6];                    //"IGSPGM"
+    uint16_t version;                 //version number in BCD BE format, 01.23 encoded as $0123
+    uint32_t infoSize;                //sizeof(Info)
+    char manufacturer[16];            //name of the manufacturer
+    char shortName[16];               //name of the cart in MAME style
+    char longName[128];               //long descriptive name
+    char year[4];                     //year of publishing as a string
+    uint32_t hardware;                //currently just protection type (AsicClass)
     uint32_t genre;
-    uint32_t coverOffset;           //offset to the CoverImage structure
-    uint32_t screenshotsOffsets[8]; //table of offset (up to 8) to ScreenshotImage structure
-    uint32_t entriesOffset;         //offset to Entry table
-    uint32_t entriesCount;          //number of entries in Entry table
+    uint32_t entries;                 //offset to Entry table
+    uint32_t entriesCount;            //number of entries in Entry table
+    uint32_t cover;                   //byte offset to the CoverImage structure
+    uint32_t screenshotOffsets;       //byte offset to the table of offsets to ScreenshotImage structures
+    uint32_t screenshotOffsetsCount;  //number of entries in the table of offsets to ScreenshotImage structures
   } info;
 
   uint8_t filler[1024-sizeof(info)];   //fill to 1024
