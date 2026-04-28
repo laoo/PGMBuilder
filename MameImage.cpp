@@ -25,7 +25,6 @@ pgm::Header buildHeader( GameEntry const& entry )
   std::string_view company{  };
   std::copy_n( entry.company, std::min( strlen( entry.company ), sizeof( pgm::Header::Info::manufacturer ) ), header.info.manufacturer );
   std::copy_n( entry.name.data(), std::min( entry.name.size(), sizeof( pgm::Header::Info::shortName ) ), header.info.shortName );
-  std::copy_n( entry.fullName, std::min( strlen( entry.fullName ), sizeof( pgm::Header::Info::longName ) ), header.info.longName );
   std::copy_n( entry.year, std::min( strlen( entry.year ), sizeof( pgm::Header::Info::year ) ), header.info.year );
   header.info.hardware = entry.asicClass;
 
@@ -41,6 +40,81 @@ size_t round512( std::ofstream& fout )
   }
 
   return fout.tellp();
+}
+
+bool isASCII( std::string_view s )
+{
+  return std::all_of( s.begin(), s.end(), []( char c )
+  {
+    return ( static_cast<uint8_t>( c ) & 0x80u ) == 0;
+  } );
+}
+
+bool isValidUTF8( std::string_view s )
+{
+  for ( size_t i = 0; i < s.size(); )
+  {
+    uint8_t c = static_cast<uint8_t>( s[i] );
+    if ( c <= 0x7f )
+    {
+      ++i;
+      continue;
+    }
+
+    uint32_t codepoint = 0;
+    size_t continuationCount = 0;
+
+    if ( ( c & 0xe0 ) == 0xc0 )
+    {
+      codepoint = c & 0x1f;
+      continuationCount = 1;
+    }
+    else if ( ( c & 0xf0 ) == 0xe0 )
+    {
+      codepoint = c & 0x0f;
+      continuationCount = 2;
+    }
+    else if ( ( c & 0xf8 ) == 0xf0 )
+    {
+      codepoint = c & 0x07;
+      continuationCount = 3;
+    }
+    else
+    {
+      return false;
+    }
+
+    if ( i + continuationCount >= s.size() )
+    {
+      return false;
+    }
+
+    for ( size_t j = 1; j <= continuationCount; ++j )
+    {
+      uint8_t cc = static_cast<uint8_t>( s[i + j] );
+      if ( ( cc & 0xc0 ) != 0x80 )
+      {
+        return false;
+      }
+      codepoint = ( codepoint << 6 ) | ( cc & 0x3f );
+    }
+
+    if ( ( continuationCount == 1 && codepoint < 0x80 ) ||
+         ( continuationCount == 2 && codepoint < 0x800 ) ||
+         ( continuationCount == 3 && codepoint < 0x10000 ) )
+    {
+      return false;
+    }
+
+    if ( codepoint > 0x10ffff || ( codepoint >= 0xd800 && codepoint <= 0xdfff ) )
+    {
+      return false;
+    }
+
+    i += continuationCount + 1;
+  }
+
+  return true;
 }
 
 }
@@ -167,6 +241,8 @@ void MameImage::build( std::filesystem::path const& out ) const
   pgm::Header header = buildHeader( *mGameEntry );
   header.info.entries = 0;
   header.info.entriesCount = 0;
+  header.info.asciiLongName = 0;
+  header.info.utf8LongName = 0;
 
   struct ROMSection
   {
@@ -216,12 +292,13 @@ void MameImage::build( std::filesystem::path const& out ) const
     fout.write( std::bit_cast<char const*>( section.assembly.data.data() ), section.assembly.data.size() );
   }
 
+  size_t headerCursor = sizeof( pgm::Header::Info );
+
   if ( !entries.empty() )
   {
-    constexpr uint32_t kEntriesOffset = sizeof( pgm::Header::Info );
     size_t const entriesBytes = entries.size() * sizeof( pgm::Entry );
 
-    if ( kEntriesOffset + entriesBytes > sizeof( pgm::Header ) )
+    if ( headerCursor + entriesBytes > sizeof( pgm::Header ) )
     {
       throw Ex{} << "Entry table does not fit in header";
     }
@@ -230,11 +307,45 @@ void MameImage::build( std::filesystem::path const& out ) const
       throw Ex{} << "Too many entries";
     }
 
-    header.info.entries = kEntriesOffset;
+    header.info.entries = static_cast<uint32_t>( headerCursor );
     header.info.entriesCount = static_cast<uint32_t>( entries.size() );
 
     fout.seekp( header.info.entries );
     fout.write( std::bit_cast<char const*>( entries.data() ), entriesBytes );
+    headerCursor += entriesBytes;
+  }
+
+  std::string_view longName = mGameEntry->fullName ? std::string_view{ mGameEntry->fullName } : std::string_view{};
+  if ( !longName.empty() )
+  {
+    bool ascii = isASCII( longName );
+    if ( !ascii && !isValidUTF8( longName ) )
+    {
+      throw Ex{} << "Long name is not valid UTF-8 for " << mGameEntry->name;
+    }
+
+    size_t longNameBytes = longName.size() + 1;
+    if ( headerCursor + longNameBytes > sizeof( pgm::Header ) )
+    {
+      throw Ex{} << "Long name does not fit in header";
+    }
+
+    uint32_t offset = static_cast<uint32_t>( headerCursor );
+    if ( ascii )
+    {
+      header.info.asciiLongName = offset;
+      header.info.utf8LongName = 0;
+    }
+    else
+    {
+      header.info.asciiLongName = 0;
+      header.info.utf8LongName = offset;
+    }
+
+    fout.seekp( offset );
+    fout.write( longName.data(), longName.size() );
+    static constexpr char kNul = '\0';
+    fout.write( &kNul, 1 );
   }
 
   fout.seekp( 0 );

@@ -50,7 +50,8 @@ struct Header
     uint32_t infoSize;                //sizeof(Info)
     char manufacturer[16];            //name of the manufacturer
     char shortName[16];               //name of the cart in MAME style
-    char longName[128];               //long descriptive name
+    uint32_t asciiLongName;           //byte offset to ASCII long name
+    uint32_t utf8LongName;            //byte offset to UTF-8 long name
     char year[4];                     //year of publishing as a string
     uint32_t hardware;                //currently just protection type (AsicClass)
     uint32_t genre;
