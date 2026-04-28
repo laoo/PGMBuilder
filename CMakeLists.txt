@@ -18,6 +18,9 @@ add_executable( PGMBuilder
   Builder.cpp
   Log.cpp
   Image.cpp
+  TextEncoding.cpp
+  WriteUtils.cpp
+  manualBuild.cpp
   MameImage.cpp
   RomAssembly.cpp
   crypt.cpp

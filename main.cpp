@@ -2,6 +2,7 @@
 #include "Ex.hpp"
 #include "convert.hpp"
 #include "Log.hpp"
+#include "manualBuild.hpp"
 
 void bulkConvert( ProgramOptions const& opt );
 
@@ -13,7 +14,11 @@ int main( int argc, char const* argv[] )
 
     LOGLEVEL( Log::VERBOSE );
 
-    if ( std::filesystem::is_directory( options.input() ) )
+    if ( options.isRomMode() )
+    {
+      manualBuild( options );
+    }
+    else if ( std::filesystem::is_directory( options.input() ) )
     {
       bulkConvert( options );
     }

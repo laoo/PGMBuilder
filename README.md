@@ -1,106 +1,155 @@
 # PGMBuilder
 
-A tool that unzips IGS PGM MAME ROMs and concatenates them to single [.igspgm](#file-format) file with a header describing ROM type.
+A tool that converts IGS PGM ROM sets into a single .pgm cartridge image.
 
-## File format
+## Getting Source
 
-### The header of .igspgm file
+Clone with submodules:
 
-Strings are padded with `'\0'`. If offset and/or size are 0 then the ROM/data are absent.
-
-Numbers are little endian.
-
+```bash
+git clone --recurse-submodules <repo-url>
 ```
-static constexpr uint16_t IGSPGM_VERSION = 0x0020;
 
-enum struct RomType : uint32_t
-{
-  NONE = 0,
-  PRG,
-  INT,
-  EXT,
-  TLE,
-  SPM,
-  SPC,
-  AUD,
-};
+If you already cloned without submodules:
 
-struct Entry
-{
-  RomType type;
-  uint32_t mapping; //adress where ROM should be mapped
-  uint32_t offset;  //offset in file. Rounded to 512 bytes
-  uint32_t size;
-};
+```bash
+git submodule update --init --recursive
+```
 
-enum AsicClass
-{
-  pgm_state = 0,
-  pgm_asic3_state,
-  pgm_012_025_state,
-  pgm_022_025_state,
-  pgm_arm_type1_state,
-  pgm_arm_type2_state,
-  pgm_arm_type3_state,
-  pgm_028_025_state
-};
+The project depends on submodule `libextern/zip`.
 
-struct Header
-{
-  struct Info
-  {
-    char magic[6];                    //"IGSPGM"
-    uint16_t version;                 //version number in BCD BE format, 01.23 encoded as $0123
-    uint32_t infoSize;                //sizeof(Info)
-    char manufacturer[16];            //name of the manufacturer
-    char shortName[16];               //name of the cart in MAME style
-    uint32_t asciiLongName;           //byte offset to ASCII long name
-    uint32_t utf8LongName;            //byte offset to UTF-8 long name
-    char year[4];                     //year of publishing as a string
-    uint32_t hardware;                //currently just protection type (AsicClass)
-    uint32_t genre;
-    uint32_t entries;                 //offset to Entry table
-    uint32_t entriesCount;            //number of entries in Entry table
-    uint32_t cover;                   //byte offset to the CoverImage structure
-    uint32_t screenshotOffsets;       //byte offset to the table of offsets to ScreenshotImage structures
-    uint32_t screenshotOffsetsCount;  //number of entries in the table of offsets to ScreenshotImage structures
-  } info;
+## Requirements
 
-  uint8_t filler[1024-sizeof(info)];   //fill to 1024
-};
+- CMake 3.25+
+- C++23 compiler
+- Git with submodule support
 
-template<size_t WIDTH, size_t HEIGHT>
-struct Image
-{
-  //number of sprites to be stacked one on another to get 256 colors
-  static const uint32_t LAYERS = 8;
+## Build
 
-  //structure of sprite data to be copied to B ROM
-  struct B
-  {
-    //offset to the corresponding color data in A ROM.
-    //Must be offsetted by the destination address where the color data will be placed
-    uint32_t memoryOffsetA;
-    //sprite bitmask
-    uint8_t bitmask[WIDTH / 8 * HEIGHT];
-  };
+Linux (GCC preset):
 
-  //palette for each sprite
-  uint16_t palettes[32 * LAYERS];
-  //size of sprite color data to be copied to A ROM
-  uint32_t sizeA;
-  //sprite data to be copied to B ROM
-  B bitmasks[LAYERS];
+```bash
+cmake --preset gcc-linux
+cmake --build --preset gcc-linux
+```
 
-  //following data for A ROM for LAYERS sprites of size sizeA
-};
+Windows (MSVC preset):
 
-//width of the cover = 7*16 = 448/4
-//aspect ratio should be 4:7
-typedef Image<112, 128> CoverImage;
-//aspect ratio should be 4:3
-typedef Image<112, 56> ScreenshotImage;
+```bash
+cmake --preset vs-windows
+cmake --build --preset vs-windows
+```
 
-static constexpr size_t coverSize = sizeof( CoverImage );           //14884
-static constexpr size_t screenshotSize = sizeof( ScreenshotImage ); //6820
+Binary location:
+
+```text
+out/build/<preset>/PGMBuilder
+```
+
+## Usage
+
+PGMBuilder supports two operational modes.
+
+1. ZIP mode (existing behavior):
+   - single ZIP input
+   - directory batch input
+2. Manual ROM mode (no ZIP):
+   - build a single .pgm directly from ROM files and explicit mappings
+
+ZIP mode syntax (positional):
+
+```bash
+PGMBuilder input [output]
+```
+
+ZIP mode syntax (named options):
+
+```bash
+PGMBuilder --input <path-to-zip-or-directory> [--output <output-directory>]
+```
+
+Manual ROM mode syntax:
+
+```bash
+PGMBuilder --rom-prg=<path@mapping> [--rom-int=<path@mapping>] [--rom-ext=<path@mapping>] [--rom-tle=<path@mapping>] [--rom-spm=<path@mapping>] [--rom-spc=<path@mapping>] [--rom-aud=<path@mapping>] --output <absolute-path-to-file.pgm>
+```
+
+## CLI Parameters
+
+- `-h, --help`: show help
+- `-i, --input <path>`: ZIP mode source (ZIP file or directory)
+- `-o, --output <path>`:
+  - ZIP mode: output directory (default: parent of input)
+  - Manual ROM mode: required full target file path ending with `.pgm`
+
+Manual ROM mode arguments:
+
+- `--rom-prg=<path@mapping>`: required
+- `--rom-int=<path@mapping>`: optional
+- `--rom-ext=<path@mapping>`: optional
+- `--rom-tle=<path@mapping>`: optional
+- `--rom-spm=<path@mapping>`: optional
+- `--rom-spc=<path@mapping>`: optional
+- `--rom-aud=<path@mapping>`: optional
+
+Rules:
+
+- `--input` and `--rom-*` are mutually exclusive
+- each `--rom-*` option can be used only once
+- `path@mapping` must contain `@`
+- `mapping` supports decimal or hexadecimal (`0x...`) numbers
+
+Optional header info parameters for manual ROM mode:
+
+- `--manufacturer=<text>`
+- `--short-name=<text>`
+- `--ascii-long-name=<text>`
+- `--utf8-long-name=<text>`
+- `--year=<text>`
+- `--hardware=<value>`
+
+Accepted `--hardware` values:
+
+- `state`
+- `asic3`
+- `012_025`
+- `022_025`
+- `arm_type1`
+- `arm_type2`
+- `arm_type3`
+- `028_025`
+
+## Examples
+
+Single ZIP:
+
+```bash
+PGMBuilder ./roms/kov.zip ./out
+```
+
+Batch from directory:
+
+```bash
+PGMBuilder --input ./roms --output ./out
+```
+
+Manual ROM minimal:
+
+```bash
+PGMBuilder --rom-prg=/tmp/rom.bin@0x1000 --output /tmp/manual.pgm
+```
+
+Manual ROM with extra sections and metadata:
+
+```bash
+PGMBuilder \
+  --rom-prg=/tmp/prg.bin@0x1000 \
+  --rom-tle=/tmp/tle.bin@0x400000 \
+  --rom-spm=/tmp/spm.bin@0x800000 \
+  --manufacturer="IGS" \
+  --short-name="custom" \
+  --ascii-long-name="Custom Build" \
+  --year="2026" \
+  --hardware=state \
+  --output /tmp/custom.pgm
 ```
