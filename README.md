@@ -13,8 +13,21 @@ Numbers are little endian.
 ```
 static constexpr uint16_t IGSPGM_VERSION = 0x0010;
 
+enum struct RomType : uint32_t
+{
+  NONE = 0,
+  PRG,
+  INT,
+  EXT,
+  TLE,
+  SPM,
+  SPC,
+  AUD,
+};
+
 struct Entry
 {
+  RomType type;
   uint32_t mapping; //adress where ROM should be mapped
   uint32_t offset;  //offset in file. Rounded to 512 bytes
   uint32_t size;
@@ -46,22 +59,11 @@ struct Header
     uint32_t genre;
     uint32_t coverOffset;           //offset to the CoverImage structure
     uint32_t screenshotsOffsets[8]; //table of offset (up to 8) to ScreenshotImage structure
+    uint32_t entriesOffset;         //offset to Entry table
+    uint32_t entriesCount;          //number of entries in Entry table
   } info;
 
-  uint8_t filler1[512-sizeof(info)];   //fill to 512
-
-  struct ROMInfo
-  {
-    Entry romPRG;			// 68k program rom
-    Entry romINT;			// ASIC27A internal
-    Entry romEXT;			// ASIC27A external
-    Entry romTLE;			// Tile
-    Entry romSPC;			// Sprite colour
-    Entry romSPM;			// Sprite mask
-    Entry romAUD;			// Audio
-  } rom;
-
-  uint8_t filler2[512-sizeof(rom)];   //fill to 1024
+  uint8_t filler[1024-sizeof(info)];   //fill to 1024
 };
 
 template<size_t WIDTH, size_t HEIGHT>

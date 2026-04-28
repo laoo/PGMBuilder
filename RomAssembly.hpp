@@ -1,16 +1,8 @@
 #pragma once
 
-enum struct RomType
-{
-  NONE = 0,
-  PRG,	// program
-  INT,	// asic27a internal
-  EXT,	// asic27a external
-  TLE,	// tile
-  SPM,	// sprite mask
-  SPC,	// sprite colour
-  AUD	// audio
-};
+#include "pgm.hpp"
+
+using RomType = pgm::RomType;
 
 struct RomOp
 {

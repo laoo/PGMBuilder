@@ -164,67 +164,80 @@ bool MameImage::isComplete() const
 void MameImage::build( std::filesystem::path const& out ) const
 {
   pgm::Header header = buildHeader( *mGameEntry );
-  pgm::Header::ROMInfo &rom = header.rom;
+  header.info.entriesOffset = 0;
+  header.info.entriesCount = 0;
+
+  struct ROMSection
+  {
+    RomType type;
+    RomAssembly assembly;
+  };
+
+  std::vector<ROMSection> sections;
+  sections.reserve( 7 );
+  for ( RomType type : { RomType::PRG, RomType::INT, RomType::EXT, RomType::TLE, RomType::SPC, RomType::SPM, RomType::AUD } )
+  {
+    sections.push_back( { type, assembleROM( type ) } );
+  }
+
+  std::vector<pgm::Entry> entries;
+  entries.reserve( sections.size() );
 
   std::ofstream fout{ out, std::ios::binary };
 
   fout.write( std::bit_cast< char const* >( &header ), sizeof( header ) );
+  fout.seekp( sizeof( header ) );
 
+  for ( auto const& section : sections )
   {
-    auto assembly = assembleROM( RomType::PRG );
-    rom.romPRG.mapping = assembly.begin;
-    rom.romPRG.offset = round512( fout );
-    rom.romPRG.size = assembly.data.size();
-    fout.write( std::bit_cast< char const* >( assembly.data.data() ), assembly.data.size() );
-  }
-  
-  {
-    auto assembly = assembleROM( RomType::INT );
-    rom.romINT.mapping = assembly.begin;
-    rom.romINT.offset = round512( fout );
-    rom.romINT.size = assembly.data.size();
-    fout.write( std::bit_cast< char const* >( assembly.data.data() ), assembly.data.size() );
+    if ( section.assembly.data.empty() )
+    {
+      continue;
+    }
+
+    auto offset = round512( fout );
+    if ( offset > std::numeric_limits<uint32_t>::max() )
+    {
+      throw Ex{} << "Output file offset out of range";
+    }
+    if ( section.assembly.data.size() > std::numeric_limits<uint32_t>::max() )
+    {
+      throw Ex{} << "ROM section too large";
+    }
+
+    entries.push_back( pgm::Entry{
+      section.type,
+      section.assembly.begin,
+      static_cast<uint32_t>( offset ),
+      static_cast<uint32_t>( section.assembly.data.size() )
+    } );
+
+    fout.write( std::bit_cast<char const*>( section.assembly.data.data() ), section.assembly.data.size() );
   }
 
+  if ( !entries.empty() )
   {
-    auto assembly = assembleROM( RomType::EXT );
-    rom.romEXT.mapping = assembly.begin;
-    rom.romEXT.offset = round512( fout );
-    rom.romEXT.size = assembly.data.size();
-    fout.write( std::bit_cast< char const* >( assembly.data.data() ), assembly.data.size() );
-  }
+    constexpr uint32_t kEntriesOffset = sizeof( pgm::Header::Info );
+    size_t const entriesBytes = entries.size() * sizeof( pgm::Entry );
 
-  {
-    auto assembly = assembleROM( RomType::TLE );
-    rom.romTLE.mapping = assembly.begin;
-    rom.romTLE.offset = round512( fout );
-    rom.romTLE.size = assembly.data.size();
-    fout.write( std::bit_cast< char const* >( assembly.data.data() ), assembly.data.size() );
-  }
-  {
-    auto assembly = assembleROM( RomType::SPC );
-    rom.romSPC.mapping = assembly.begin;
-    rom.romSPC.offset = round512( fout );
-    rom.romSPC.size = assembly.data.size();
-    fout.write( std::bit_cast<char const*>( assembly.data.data() ), assembly.data.size() );
-  }
-  {
-    auto assembly = assembleROM( RomType::SPM );
-    rom.romSPM.mapping = assembly.begin;
-    rom.romSPM.offset = round512( fout );
-    rom.romSPM.size = assembly.data.size();
-    fout.write( std::bit_cast<char const*>( assembly.data.data() ), assembly.data.size() );
-  }
-  {
-    auto assembly = assembleROM( RomType::AUD );
-    rom.romAUD.mapping = assembly.begin;
-    rom.romAUD.offset = round512( fout );
-    rom.romAUD.size = assembly.data.size();
-    fout.write( std::bit_cast<char const*>( assembly.data.data() ), assembly.data.size() );
+    if ( kEntriesOffset + entriesBytes > sizeof( pgm::Header ) )
+    {
+      throw Ex{} << "Entry table does not fit in header";
+    }
+    if ( entries.size() > std::numeric_limits<uint32_t>::max() )
+    {
+      throw Ex{} << "Too many entries";
+    }
+
+    header.info.entriesOffset = kEntriesOffset;
+    header.info.entriesCount = static_cast<uint32_t>( entries.size() );
+
+    fout.seekp( header.info.entriesOffset );
+    fout.write( std::bit_cast<char const*>( entries.data() ), entriesBytes );
   }
 
   fout.seekp( 0 );
-  fout.write( std::bit_cast<char const*>( &header ), sizeof( header ) );
+  fout.write( std::bit_cast<char const*>( &header.info ), sizeof( header.info ) );
 }
 
 RomAssembly MameImage::assembleROM( RomType type ) const
