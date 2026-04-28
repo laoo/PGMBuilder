@@ -7,7 +7,7 @@
 namespace pgm
 {
 
-static constexpr uint16_t IGSPGM_VERSION = 0x0011;
+static constexpr uint16_t IGSPGM_VERSION = 0x0020;
 
 enum struct RomType : uint32_t
 {
@@ -47,6 +47,7 @@ struct Header
   {
     char magic[6];          //"IGSPGM"
     uint16_t version;       //version number in BCD BE format, 01.23 encoded as $0123
+    uint32_t infoSize;      //sizeof(Info)
     char manufacturer[16];  //name of the manufacturer
     char shortName[16];     //name of the cart in MAME style
     char longName[128];     //long descriptive name

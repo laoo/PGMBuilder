@@ -20,6 +20,7 @@ pgm::Header buildHeader( GameEntry const& entry )
   std::copy_n( "IGSPGM", 6, header.info.magic );
 
   header.info.version = std::byteswap( pgm::IGSPGM_VERSION );
+  header.info.infoSize = sizeof( pgm::Header::Info );
 
   std::string_view company{  };
   std::copy_n( entry.company, std::min( strlen( entry.company ), sizeof( pgm::Header::Info::manufacturer ) ), header.info.manufacturer );
