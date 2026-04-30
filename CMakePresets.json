@@ -6,6 +6,9 @@
             "displayName": "Native (non-Windows)",
             "generator": "Unix Makefiles",
             "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+            },
             "condition": {
                 "type": "notEquals",
                 "lhs": "${hostSystemName}",
@@ -17,6 +20,9 @@
             "displayName": "MSVC (Visual Studio)",
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+            },
             "condition": {
                 "type": "equals",
                 "lhs": "${hostSystemName}",
