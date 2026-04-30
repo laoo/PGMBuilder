@@ -26,11 +26,11 @@ The project depends on submodule `libextern/zip`.
 
 ## Build
 
-Linux (GCC preset):
+Linux/macOS (native preset):
 
 ```bash
-cmake --preset gcc-linux
-cmake --build --preset gcc-linux
+cmake --preset native
+cmake --build --preset native
 ```
 
 Windows (MSVC preset):
