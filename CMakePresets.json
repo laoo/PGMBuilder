@@ -1,37 +1,43 @@
 {
-  "version": 3,
-  "configurePresets": [
-    {
-      "name": "gcc-linux",
-      "displayName": "GCC (Linux)",
-      "generator": "Unix Makefiles",
-      "binaryDir": "${sourceDir}/out/build/${presetName}",
-      "condition": {
-        "type": "equals",
-        "lhs": "${hostSystemName}",
-        "rhs": "Linux"
-      }
-    },
-    {
-      "name": "vs-windows",
-      "displayName": "MSVC (Visual Studio)",
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/out/build/${presetName}",
-      "condition": {
-        "type": "equals",
-        "lhs": "${hostSystemName}",
-        "rhs": "Windows"
-      }
-    }
-  ],
-  "buildPresets": [
-    {
-      "name": "gcc-linux",
-      "configurePreset": "gcc-linux"
-    },
-    {
-      "name": "vs-windows",
-      "configurePreset": "vs-windows"
-    }
-  ]
+    "version": 3,
+    "configurePresets": [
+        {
+            "name": "native",
+            "displayName": "Native (non-Windows)",
+            "generator": "Unix Makefiles",
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+            },
+            "condition": {
+                "type": "notEquals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "vs-windows",
+            "displayName": "MSVC (Visual Studio)",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+            },
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "native",
+            "configurePreset": "native"
+        },
+        {
+            "name": "vs-windows",
+            "configurePreset": "vs-windows"
+        }
+    ]
 }
