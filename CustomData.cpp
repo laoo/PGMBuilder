@@ -1,4 +1,6 @@
 #include "CustomData.hpp"
+#include <array>
+#include <limits>
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -9,12 +11,16 @@ struct SIGS025Table
 	uint8_t			anTable[0xec];
 };
 
+template <std::size_t N>
 struct SIGS025Settings
 {
+	static_assert(N <= std::numeric_limits<uint8_t>::max(), "SIGS025Settings region count exceeds uint8_t range");
+	static constexpr uint8_t REGION_COUNT = static_cast<uint8_t>(N);
+
 	uint8_t			nVariant;				// IGS025 variant
 	uint8_t			nDefaultRegion;
-	uint8_t			nRegionCount;
-	SIGS025Table	aRegionTable[];
+	uint8_t			nRegionCount = REGION_COUNT;
+	std::array<SIGS025Table, N>	aRegionTable;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -32,13 +38,12 @@ static const uint8_t VAR_ORIENTAL_LEGEND_SUPER	= 3;
 // All tables all xored by 'warning' information at $1354ee (drgw2)
 // tables are the same as drgw3 and olds
 
-static const SIGS025Settings drgw2_igs025_data =
+static const SIGS025Settings<1> drgw2_igs025_data =
 {
 	.nVariant = VAR_DRAGON_WORLD_2,
 	.nDefaultRegion = 0x6,
-	.nRegionCount = 1,
 	.aRegionTable = 
-	{
+	{{
 		// Region 6, World, $13ab42 (drgw2), $13ab2e (dw2v100x)
 		{
 			.nRegionCode = 0x6,
@@ -62,16 +67,15 @@ static const SIGS025Settings drgw2_igs025_data =
 				0x12, 0x66, 0xA6, 0xBE, 0x4A, 0x12, 0x43, 0xEC, 0x00, 0xEA, 0x49, 0x02
 			}
 		}
-	}
+	}}
 };
 
-static const SIGS025Settings drgw2c_igs025_data =
+static const SIGS025Settings<1> drgw2c_igs025_data =
 {
 	.nVariant = VAR_DRAGON_WORLD_2,
 	.nDefaultRegion = 0x5,
-	.nRegionCount = 1,
 	.aRegionTable = 
-	{
+	{{
 		// Region 5, China, $13ab42 (drgw2c, drgw2c101)
 		{
 			.nRegionCode = 0x5,
@@ -95,16 +99,15 @@ static const SIGS025Settings drgw2c_igs025_data =
 				0x4D, 0xA1, 0x0A, 0xD6, 0x3A, 0x16, 0x15, 0xAA, 0x2C, 0x6C, 0x39, 0x42
 			}
 		}
-	}
+	}}
 };
 
-static const SIGS025Settings drgw2jhk_igs025_data =
+static const SIGS025Settings<1> drgw2jhk_igs025_data =
 {
 	.nVariant = VAR_DRAGON_WORLD_2,
 	.nDefaultRegion = 0x1,
-	.nRegionCount = 1,
 	.aRegionTable = 
-	{
+	{{
 		// Region 1, $13A886 (drgw2j, drgw2hk)
 		{
 			.nRegionCode = 0x1,
@@ -128,7 +131,7 @@ static const SIGS025Settings drgw2jhk_igs025_data =
 				0x08, 0x75, 0xB0, 0x9B, 0xE0, 0x0D, 0x43, 0x88, 0xAA, 0x27, 0x44, 0x11
 			}
 		}
-	}
+	}}
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -158,13 +161,12 @@ INPUT_PORTS_END
 */
 
 // offsets to these tables stored at $155ed0
-static const SIGS025Settings killbld_igs025_data =
+static const SIGS025Settings<6> killbld_igs025_data =
 {
 	.nVariant = VAR_KILLING_BLADE,
 	.nDefaultRegion = 0x21,
-	.nRegionCount = 6,
 	.aRegionTable = 
-	{
+	{{
 		// region 16, Taiwan, $178772
 		{
 			.nRegionCode = 0x16,
@@ -303,7 +305,7 @@ static const SIGS025Settings killbld_igs025_data =
 				0xdc, 0x9a, 0xa3, 0x48, 0xd3, 0xf5, 0x72, 0xd5, 0x43, 0xd8, 0x19, 0xcc
 			}
 		}
-	}
+	}}
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -328,13 +330,12 @@ INPUT_PORTS_START( dw3 )
 INPUT_PORTS_END
 */
 
-static const SIGS025Settings drgw3_igs025_data =
+static const SIGS025Settings<7> drgw3_igs025_data =
 {
 	.nVariant = VAR_DRAGON_WORLD_3,
 	.nDefaultRegion = 0x06, // World
-	.nRegionCount = 7,
 	.aRegionTable = 
-	{
+	{{
 		// region 1, Japan, $14c21a
 		{
 			.nRegionCode = 0x01,
@@ -496,35 +497,35 @@ static const SIGS025Settings drgw3_igs025_data =
 				0xd6, 0x44, 0x43, 0x8d, 0x73, 0x0e, 0x71, 0x48, 0xd3, 0x82, 0x40, 0xda
 			}
 		}
-	}
+	}}
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 // Return custom data for IGS025 protection ASIC
 ////////////////////////////////////////////////////////////////////////////////
 
-static std::span<const uint8_t> StaticDataToSpan(const SIGS025Settings *pTable)
+template <std::size_t N>
+static std::span<const uint8_t> staticDataToSpan(const SIGS025Settings<N> *pTable)
 {
-	uint32_t size = sizeof(SIGS025Settings) + (sizeof(SIGS025Table) * pTable->nRegionCount);
-	return std::span<const uint8_t>(reinterpret_cast<const uint8_t*> (pTable), size);
+	return std::span<const uint8_t>(reinterpret_cast<const uint8_t*> (pTable), sizeof(SIGS025Settings<N>));
 }
 
 std::span<const uint8_t> getCustomDataIGS025( std::string const& gameName )
 {
 	if (gameName == "drgw2" || gameName == "drgw2100x")
-		return StaticDataToSpan(&drgw2_igs025_data);
+		return staticDataToSpan(&drgw2_igs025_data);
 
 	if (gameName == "drgw2101c" || gameName == "drgw2100c")
-		return StaticDataToSpan(&drgw2c_igs025_data);
+		return staticDataToSpan(&drgw2c_igs025_data);
 
 	if (gameName == "drgw2100j" || gameName == "drgw2100hk")
-		return StaticDataToSpan(&drgw2jhk_igs025_data);
+		return staticDataToSpan(&drgw2jhk_igs025_data);
 
 	if (gameName.starts_with("drgw3"))
-		return StaticDataToSpan(&drgw3_igs025_data);
+		return staticDataToSpan(&drgw3_igs025_data);
 	
 	if (gameName.starts_with("killbld") && !gameName.starts_with("killbldp"))
-		return StaticDataToSpan(&killbld_igs025_data);
+		return staticDataToSpan(&killbld_igs025_data);
 
 	return {};
 }
