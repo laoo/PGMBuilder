@@ -5,12 +5,8 @@
 #include "RomAssembly.hpp"
 #include "Log.hpp"
 
-static void convert( zip_t* zip, char const* cpath, std::filesystem::path const& output )
+static void convert( Builder &builder, zip_t* zip, char const* cpath, const bool isParent )
 {
-  LN << "Processing " << cpath;
-
-  Builder builder;
-
   size_t n = zip_entries_total( zip );
   for ( size_t i = 0; i < n; ++i )
   {
@@ -31,24 +27,51 @@ static void convert( zip_t* zip, char const* cpath, std::filesystem::path const&
         zip_entry_read( zip, &buf, &rom.size );
         rom.buffer2.reset( std::bit_cast< uint8_t* >( buf ), []( uint8_t* p ) { ::free( p ); } );
 
-        builder.addROM( std::move( rom ) );
+        builder.addROM( std::move( rom ), isParent );
       }
     }
   }
-
-  builder.build( output );
 }
 
 void convert( std::filesystem::path const& input, std::filesystem::path const& output, [[maybe_unused]] ProgramOptions const& opt )
 {
   auto gstring = input.generic_string();
   auto cpath = gstring.c_str();
+  auto romSet = input.filename().stem().generic_string();
 
   int errnum = 0;
   if ( auto zip = zip_openwitherror( cpath, 0, 'r', &errnum ) )
   {
     std::shared_ptr<zip_t> deleter( zip, &zip_close );
-    convert( zip, cpath, output );
+
+    LN << "Processing " << cpath;
+    
+    Builder builder;
+    
+    convert(builder, zip, cpath, false);
+    
+    // see if there is a parent set
+    std::string parent = builder.parent(romSet);
+    if (!parent.empty())
+    {
+	  // add parent entries if the parent exists
+	  std::filesystem::path ppath = input;
+	  auto cparentpath = ppath.replace_filename(parent + ".zip");
+      auto pgstring = ppath.generic_string();
+      auto pcpath = pgstring.c_str();
+      LN << "Adding parent set " << pcpath;
+      if ( auto zip = zip_openwitherror( pcpath, 0, 'r', &errnum ) )
+      {
+        std::shared_ptr<zip_t> deleter( zip, &zip_close );
+        convert(builder, zip, pcpath, true);
+	  }
+      else
+      {
+        throw Ex{} << "Error processing " << cpath << ": " << zip_strerror( errnum );
+      }
+    }
+    
+    builder.build( output, romSet );
   }
   else
   {

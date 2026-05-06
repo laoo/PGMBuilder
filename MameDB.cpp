@@ -24,9 +24,9 @@ uint32_t parseCRC( char const* s )
   return hash;
 }
 
-int registerGame( RomEntry const* romEntry, char const* name, char const* fullName, char const* company, char const* year, AsicClass asicClass )
+int registerGame( RomEntry const* romEntry, char const* name, char const* parentName, char const* fullName, char const* company, char const* year, AsicClass asicClass )
 {
-  auto gameEntry = std::make_shared<GameEntry>( romEntry, std::string{ name }, fullName, company, year, asicClass );
+  auto gameEntry = std::make_shared<GameEntry>( romEntry, std::string{ name }, std::string{ parentName }, fullName, company, year, asicClass );
 
   gGames.insert( { gameEntry->name, gameEntry } );
 
@@ -64,7 +64,7 @@ std::optional<std::span<std::shared_ptr<GameEntry>>> findGameEntry( uint32_t has
     return it->second;
 }
 
-void populateCache( RawROM rom, ImageCache& cache )
+void populateCache( RawROM rom, ImageCache& cache, const bool allowDuplicate )
 {
   auto pROM = std::make_shared<RawROM>( std::move( rom ) );
   auto games = findGameEntry( pROM->crc );
@@ -75,14 +75,14 @@ void populateCache( RawROM rom, ImageCache& cache )
     {
       if ( auto img = cache.get( pGame->name ) )
       {
-        img->addROM( pROM );
+        img->addROM( pROM, allowDuplicate );
       }
     }
   }
   else
   {
     //custom ROM
-    cache.get( {} )->addROM( std::move( pROM ) );
+    cache.get( {} )->addROM( std::move( pROM ), allowDuplicate );
   }
 }
 

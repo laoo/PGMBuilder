@@ -13,8 +13,10 @@ class MameImage : public Image
 {
 public:
   ~MameImage() override;
-  void addROM( std::shared_ptr<RawROM> rom ) override;
+  void addROM( std::shared_ptr<RawROM> rom, const bool allowDuplicate ) override;
   bool isComplete() const override;
+  const std::string& parent() const override;
+  const std::string& name() const override;
   void build( std::filesystem::path const& out ) const override;
 
   static std::shared_ptr<MameImage> create( std::string const& tpl );

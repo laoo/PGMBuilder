@@ -61,6 +61,7 @@ struct GameEntry
 {
   RomEntry const* romEntry;
   std::string name;
+  std::string parentName;
   char const* fullName;
   char const* company;
   char const* year;
@@ -76,7 +77,7 @@ struct GameEntryComparer
 };
 
 uint32_t parseCRC( char const* s );
-void populateCache( RawROM rom, ImageCache& cache );
+void populateCache( RawROM rom, ImageCache& cache, const bool allowDuplicate );
 std::shared_ptr<GameEntry> gameByName( std::string const& name );
 
 }

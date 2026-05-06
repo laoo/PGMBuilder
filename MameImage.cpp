@@ -6,6 +6,7 @@
 #include "TextEncoding.hpp"
 #include "WriteUtils.hpp"
 #include <cstring>
+#include "CustomData.hpp"
 
 using namespace std::string_view_literals;
 
@@ -46,6 +47,30 @@ std::shared_ptr<MameImage> MameImage::create( std::string const& tpl )
 
   assert( gameEntry );
 
+	// add custom data to the set
+	for (uint32_t i = (uint32_t) RomType::PRG; i < (uint32_t) RomType::COUNT; i++)
+	{
+		// see if we have any custom data for this type
+		RomType type = (RomType) i;
+		std::span<const uint8_t> customData = getCustomData(gameEntry->name, type);
+		if (!customData.empty())
+		{
+			// create actual ROM data for the entry
+			RawROM rom{};
+			rom.name = "CUSTOM_DATA";
+			rom.crc = 0;
+			rom.size = customData.size();
+		    rom.buffer2 = std::make_shared<uint8_t[]>(customData.size());
+			std::memcpy(rom.buffer2.get(), customData.data(), customData.size());
+
+			// create a slot and add it to our list
+			ROMSlot slot{ type };
+			slot.src = std::make_shared<RawROM>( std::move( rom ) );
+			slot.ops.emplace_back( 0, (uint32_t) customData.size(), ROMENTRYTYPE_ROM );
+			slots.push_back( slot );
+		}
+	}
+
   RomType type = RomType::NONE;
 
   for ( size_t i = 0;; ++i )
@@ -83,6 +108,10 @@ std::shared_ptr<MameImage> MameImage::create( std::string const& tpl )
       else if ( "user1"sv == romEntry.name )
       {
         type = RomType::EXT;
+      }
+      else if ( "igs022"sv == romEntry.name )
+      {
+        type = RomType::I22;
       }
       else
       {
@@ -123,14 +152,18 @@ MameImage::~MameImage()
 {
 }
 
-void MameImage::addROM( std::shared_ptr<RawROM> rom )
+void MameImage::addROM( std::shared_ptr<RawROM> rom, const bool allowDuplicate )
 {
   for ( auto & slot : mSlots )
   {
     if ( slot.crc == rom->crc )
     {
       if ( slot.src )
-        throw Ex{} << "Double ROM";
+	  {
+		// if its a parent ROM set allow the duplicate without error but dont set it
+		if (!allowDuplicate)
+          throw Ex{} << "Double ROM";
+	  }
       slot.src = std::move( rom );
       break;
     }
@@ -152,6 +185,16 @@ bool MameImage::isComplete() const
   return true;
 }
 
+const std::string& MameImage::parent() const
+{
+  return mGameEntry->parentName;
+}
+
+const std::string& MameImage::name() const
+{
+  return mGameEntry->name;
+}
+
 void MameImage::build( std::filesystem::path const& out ) const
 {
   pgm::Header header = buildHeader( *mGameEntry );
@@ -168,7 +211,7 @@ void MameImage::build( std::filesystem::path const& out ) const
 
   std::vector<ROMSection> sections;
   sections.reserve( 7 );
-  for ( RomType type : { RomType::PRG, RomType::INT, RomType::EXT, RomType::TLE, RomType::SPC, RomType::SPM, RomType::AUD } )
+  for ( RomType type : { RomType::PRG, RomType::INT, RomType::EXT, RomType::TLE, RomType::SPC, RomType::SPM, RomType::AUD, RomType::I22, RomType::I25 } )
   {
     sections.push_back( { type, assembleROM( type ) } );
   }
@@ -270,7 +313,7 @@ void MameImage::build( std::filesystem::path const& out ) const
 
 RomAssembly MameImage::assembleROM( RomType type ) const
 {
-	static const char *apROMTypeName[] = { "", "Program", "ASIC27A Internal", "ASIC27A External", "Tile", "Sprite Mask", "Sprite Colour", "Audio"};
+	static const char *apROMTypeName[] = { "", "Program", "ASIC27A Internal", "ASIC27A External", "Tile", "Sprite Mask", "Sprite Colour", "Audio", "IGS022", "IGS025"};
   std::shared_ptr<RawROM> rawRom;
 
   // pre-parse INT ROMs and make sure there is an entry for NO_DUMPs
@@ -307,8 +350,19 @@ RomAssembly MameImage::assembleROM( RomType type ) const
   for ( auto const& slot : slotsByType( type ) )
     for ( auto const& op : slot.ops )
     {
-      beg = std::min( beg, op.offset );
-      end = std::max( end, op.offset + op.length * ( ( ( op.flags & ROM_SKIPMASK ) == ROM_SKIP1 ) ? 2 : 1 ) );
+	  uint32_t off = op.offset;
+	  uint32_t size = op.length;
+
+	  // if interleaved ignore byte offset and double the size
+	  // fixes size bug on interleaved sections
+	  if (( op.flags & ROM_SKIPMASK ) == ROM_SKIP1)
+	  {
+		  off &= ~1;
+		  size *= 2;
+	  }
+
+      beg = std::min( beg, off );
+      end = std::max( end, off + size );
 	  nSlots++;
     }
 
@@ -336,14 +390,24 @@ RomAssembly MameImage::assembleROM( RomType type ) const
 
     for ( auto const& op : slot.ops )
     {
+      // display size in kb or mb, minimum 1kb
+      uint32_t size = rawRom->size / 1024;
+	  const char *sizeTxt = "KB";
+      if (size >= 1024)
+      {
+          size /= 1024;
+          sizeTxt = "MB";
+      }
+	  if (size == 0) size = 1;
+
 	  LV  << rawRom->name 
 		  << " @ $" 
 		  << std::hex 
 		  << op.offset 
 		  << " " 
 		  << std::dec 
-		  << ((rawRom->size == 0) ? 0 : (rawRom->size / ((rawRom->size < (1024 * 1024)) ? 1024 : 1024 * 1024)))
-		  << ((rawRom->size == 0) ? 0 : (rawRom->size < (1024 * 1024) ? "KB" : "MB")) 
+		  << size
+		  << sizeTxt 
 		  << (decryptor != 0 ? " (patched)":"");
       result.add( mGameEntry->name, type, op, *rawRom );
     }

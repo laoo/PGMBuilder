@@ -5,39 +5,60 @@
 
 std::function<void( std::span<uint8_t> )> getPDecryptor( std::string const& gameName )
 {
-	if ( gameName == "kovsh" )
+	if (gameName.starts_with("kovsh"))
 		return crypt::kovsh_prg;
-	if ( gameName == "kov" )
+	if (gameName.starts_with("kov") && !gameName.starts_with("kov2"))
 		return crypt::kov_prg;
-	if (gameName == "orlegend")
+	if (gameName.starts_with("orlegend"))
 		return crypt::orlegend_prg;
-	if (gameName == "photoy2k" || gameName == "photoy2k104" || gameName == "photoy2k103j" || gameName == "photoy2k102j")
+	if (gameName.starts_with("photoy2k"))
 		return crypt::photoy2k_prg;
+
+	// Dragon World 2 Variants, patching for IGS012
 	if (gameName == "drgw2")
 		return crypt::drgw2_prg;
-	if (gameName == "ddp3")
+	if (gameName == "drgw2100x")
+		return crypt::drgw2v100x_prg;
+	if (gameName == "drgw2100j")
+		return crypt::drgw2j_prg;
+	if (gameName == "drgw2101c")
+		return crypt::drgw2c101_prg;
+	if (gameName == "drgw2100c")
+		return crypt::drgw2c_prg;
+	if (gameName == "drgw2100hk")
+		return crypt::drgw2hk_prg;
+
+	if (gameName.starts_with("ddp3"))
 		return crypt::ddp3_prg;
+	if (gameName.starts_with("drgw3"))
+		return crypt::drgw3_prg;
+	if (gameName.starts_with("killbld"))
+		return crypt::killbld_prg;
 
 	return {};
 }
 
 std::function<void( std::span<uint8_t> )> getEDecryptor( std::string const& gameName )
 {
-	if (gameName == "martmast" || gameName == " martmast102c" || gameName == " martmast103c" || gameName == " martmast104c")
+	if (gameName.starts_with("kov2p"))
+		return crypt::kov2p_ext;
+	if (gameName.starts_with("kov2"))
+		return crypt::kov2_ext;
+	if (gameName.starts_with("martmast"))
 		return crypt::martmast_ext;
-	if (gameName == "ddp2")
+	if (gameName.starts_with("ddp2"))
 		return crypt::ddp2_ext;
-	if (gameName == "killbldp")
+	if (gameName.starts_with("killbldp"))
 		return crypt::killbldp_ext;
-	if (gameName == "theglad")
+	if (gameName.starts_with("theglad"))
 		return crypt::theglad_ext;
-	if (gameName == "dmnfrnt")
+	if (gameName.starts_with("dmnfrnt"))
 		return crypt::dmnfrnt_ext;
-	if (gameName == "dw2001")
+	if (gameName.starts_with("dw2001"))
 		return crypt::dw2001_ext;
-	if (gameName == "svg")
+	if (gameName.starts_with("svg"))
 		return crypt::svg_ext;
-	if (gameName == "happy6")
+	if (gameName.starts_with("happy6"))
 		return crypt::happy6_ext;
 
 	return {};
@@ -45,13 +66,13 @@ std::function<void( std::span<uint8_t> )> getEDecryptor( std::string const& game
 
 std::function<void( std::span<uint8_t> )> getIDecryptor( std::string const& gameName )
 {
-	if (gameName == "theglad")
+	if (gameName.starts_with("theglad"))
 		return crypt::theglad_int;
-	if (gameName == "dmnfrnt")
+	if (gameName.starts_with("dmnfrnt"))
 		return crypt::dmnfrnt_int;
-	if (gameName == "svg")
+	if (gameName.starts_with("svg"))
 		return crypt::svg_int;
-	if (gameName == "happy6")
+	if (gameName.starts_with("happy6"))
 		return crypt::happy6_int;
 
 	return {};
@@ -60,7 +81,7 @@ std::function<void( std::span<uint8_t> )> getIDecryptor( std::string const& game
 // data decryptor, only used for happy6
 std::function<void( std::span<uint8_t> )> getDDecryptor( std::string const& gameName )
 {
-	if (gameName == "happy6")
+	if (gameName.starts_with("happy6"))
 		return crypt::happy6_data;
 
 	return {};

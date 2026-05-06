@@ -37,7 +37,7 @@ void pgm_decrypt_dw3(std::span<uint8_t> rom)
 	}
 }
 
-void pgm_decrypt_killbld(std::span<uint8_t> rom)
+void pgm_decrypt_killbld_prg(std::span<uint8_t> rom)
 {
 	uint16_t *src = (uint16_t *)rom.data();
 	uint32_t const rom_size = rom.size();
@@ -1223,6 +1223,27 @@ void pgm_drgw2_decrypt_prg(std::span<uint8_t> rom)
 	}
 }
 
+void pgm_drgw3_decrypt_prg(std::span<uint8_t> rom)
+{
+	uint16_t *src = (uint16_t *) rom.data();
+
+	int rom_size = 0x100000;
+
+	for (int i = 0; i < rom_size / 2; i++)
+	{
+		uint16_t x = src[i];
+
+		if ((i & 0x005460) == 0x001400 || (i & 0x005450) == 0x001040)
+			x ^= 0x0100;
+
+		if ((i & 0x005e00) == 0x001c00 || (i & 0x005580) == 0x001100)
+			x ^= 0x0040;
+
+		src[i] = x;
+	}
+}
+
+
 // todo, collapse these to an address swap
 void pgm_descramble_happy6(uint8_t* src)
 {
@@ -1311,6 +1332,73 @@ void dmnfrnt_int(std::span<uint8_t> rom)
 void drgw2_prg(std::span<uint8_t> rom)
 {
 	pgm_drgw2_decrypt_prg( rom );
+
+	// IGS012 handles this?
+	// crashes without changing the jsr a0 to jsr a3
+	uint16_t *mem16 = (uint16_t *) rom.data();
+	mem16[0x31098 / 2] = 0x4e93;
+	mem16[0x3113e / 2] = 0x4e93;
+	mem16[0x311ce / 2] = 0x4e93;
+}
+
+void drgw2v100x_prg(std::span<uint8_t> rom)
+{
+	pgm_drgw2_decrypt_prg( rom );
+
+	// IGS012 handles this?
+	// crashes without changing the jsr a0 to jsr a3
+	uint16_t *mem16 = (uint16_t *) rom.data();
+	mem16[0x31084 / 2] = 0x4e93;
+	mem16[0x3112a / 2] = 0x4e93;
+	mem16[0x311ba / 2] = 0x4e93;
+}
+
+void drgw2c_prg(std::span<uint8_t> rom)
+{
+	pgm_drgw2_decrypt_prg( rom );
+
+	// IGS012 handles this?
+	// crashes without changing the jsr a0 to jsr a3
+	uint16_t *mem16 = (uint16_t *) rom.data();
+	mem16[0x303bc / 2] = 0x4e93;
+	mem16[0x30462 / 2] = 0x4e93;
+	mem16[0x304f2 / 2] = 0x4e93;
+}
+
+void drgw2c101_prg(std::span<uint8_t> rom)
+{
+	pgm_drgw2_decrypt_prg( rom );
+
+	// IGS012 handles this?
+	// crashes without changing the jsr a0 to jsr a3
+	uint16_t *mem16 = (uint16_t *) rom.data();
+	mem16[0x306e4 / 2] = 0x4e93;
+	mem16[0x3078a / 2] = 0x4e93;
+	mem16[0x3081a / 2] = 0x4e93;
+}
+
+void drgw2j_prg(std::span<uint8_t> rom)
+{
+	pgm_drgw2_decrypt_prg( rom );
+
+	// IGS012 handles this?
+	// crashes without changing the jsr a0 to jsr a3
+	uint16_t *mem16 = (uint16_t *) rom.data();
+	mem16[0x302c0 / 2] = 0x4e93;
+	mem16[0x30366 / 2] = 0x4e93;
+	mem16[0x303f6 / 2] = 0x4e93;
+}
+
+void drgw2hk_prg(std::span<uint8_t> rom)
+{
+	pgm_drgw2_decrypt_prg( rom );
+
+	// IGS012 handles this?
+	// crashes without changing the jsr a0 to jsr a3
+	uint16_t *mem16 = (uint16_t *) rom.data();
+	mem16[0x2f520 / 2] = 0x4e93;
+	mem16[0x2f5c6 / 2] = 0x4e93;
+	mem16[0x2f656 / 2] = 0x4e93;
 }
 
 void ddp3_prg(std::span<uint8_t> rom)
@@ -1356,6 +1444,26 @@ void happy6_data(std::span<uint8_t> rom)
 		pgm_descramble_happy6(rom.data() + 0x800000);
 		pgm_descramble_happy6_2(rom.data() + 0x800000);
 	}
+}
+
+void drgw3_prg(std::span<uint8_t> rom)
+{
+	pgm_drgw3_decrypt_prg( rom );
+}
+
+void killbld_prg(std::span<uint8_t> rom)
+{
+	pgm_decrypt_killbld_prg( rom );
+}
+
+void kov2_ext( std::span<uint8_t> rom )
+{
+	pgm_decrypt_kov2( rom );
+}
+
+void kov2p_ext( std::span<uint8_t> rom )
+{
+	pgm_decrypt_kov2p( rom );
 }
 
 }

@@ -36,9 +36,9 @@ ROM_END
 
 #define GAME_NAME(name)         driver_##name
 
-int registerGame( RomEntry const* romEntry, char const* name, char const* fullName, char const* company, char const* year, AsicClass asicClass );
+int registerGame( RomEntry const* romEntry, char const* name, char const* parentName, char const* fullName, char const* company, char const* year, AsicClass asicClass );
 
-#define GAME(YEAR, NAME, PARENT, MACHINE, INPUT, CLASS, INIT, MONITOR, COMPANY, FULLNAME, FLAGS) int GAME_NAME(NAME) = registerGame( ROM_NAME(NAME), #NAME, FULLNAME, COMPANY, #YEAR, CLASS );
+#define GAME(YEAR, NAME, PARENT, MACHINE, INPUT, CLASS, INIT, MONITOR, COMPANY, FULLNAME, FLAGS) int GAME_NAME(NAME) = registerGame( ROM_NAME(NAME), #NAME, #PARENT, FULLNAME, COMPANY, #YEAR, CLASS );
 
 #include "MameGames.hpp"
 

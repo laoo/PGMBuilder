@@ -19,6 +19,9 @@ enum struct RomType : uint32_t
   SPM,  // sprite mask
   SPC,  // sprite colour
   AUD,  // audio
+  I22,	// IGS022
+  I25,	// IGS025
+  COUNT
 };
 
 struct Entry
@@ -33,8 +36,8 @@ enum AsicClass
 {
   pgm_state = 0,
   pgm_asic3_state,
-  pgm_012_025_state,
-  pgm_022_025_state,
+  pgm_012_025_state,		// DW2
+  pgm_022_025_state,		// DW3, KILLBLD
   pgm_arm_type1_state,
   pgm_arm_type2_state,
   pgm_arm_type3_state,

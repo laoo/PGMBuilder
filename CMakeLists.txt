@@ -23,6 +23,7 @@ add_executable( PGMBuilder
   manualBuild.cpp
   MameImage.cpp
   RomAssembly.cpp
+  CustomData.cpp
   crypt.cpp
   crypt/kov/kov_deprotect.cpp
   crypt/orlegend/orlegend_deprotect.cpp
