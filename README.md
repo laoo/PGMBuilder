@@ -1,3 +1,5 @@
+[![Build](https://github.com/laoo/PGMBuilder/actions/workflows/build.yml/badge.svg)](https://github.com/laoo/PGMBuilder/actions/workflows/build.yml)
+
 # PGMBuilder
 
 A tool that converts IGS PGM ROM sets into a single .pgm cartridge image.
@@ -45,6 +47,30 @@ Binary location:
 ```text
 out/build/<preset>/PGMBuilder
 ```
+
+## CI (GitHub Actions)
+
+Repository includes a GitHub Actions workflow that builds on:
+
+- Ubuntu
+- macOS
+- Windows
+
+It runs on every push and pull request.
+
+### Build artifacts
+
+Each workflow run uploads build outputs as downloadable artifacts:
+
+- `PGMBuilder-ubuntu`
+- `PGMBuilder-macos`
+- `PGMBuilder-windows`
+
+To download:
+
+1. Open GitHub repository `Actions` tab.
+2. Open a finished `Build` workflow run.
+3. In the `Artifacts` section, download the package for your platform.
 
 ## Usage
 
