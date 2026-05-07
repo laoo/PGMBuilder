@@ -70,13 +70,16 @@ void Builder::build( std::filesystem::path const& out, std::string const& romSet
 		  return false;
 		} );
 	  }
-	  buildSet = complete[0];
+	  if (!complete.empty()) buildSet = complete[0];
   }
 
-  LN << "Building " << buildSet.first;
-  auto destPath = ( out / buildSet.first ).replace_extension( ".pgm" );
-  std::filesystem::create_directories( destPath.parent_path() );
-  buildSet.second->build( destPath );
+  if (!buildSet.first.empty())
+  {
+	  LN << "Building " << buildSet.first;
+	  auto destPath = ( out / buildSet.first ).replace_extension( ".pgm" );
+	  std::filesystem::create_directories( destPath.parent_path() );
+	  buildSet.second->build( destPath );
+  }
 }
 
 const std::string Builder::parent(const std::string romSet)
@@ -90,8 +93,9 @@ const std::string Builder::parent(const std::string romSet)
 	if (p.second->name().compare(romSet) == 0)
 	{
 	  // parent which isnt the bios set?
+	  // or no bios needed (cart overrides it), which is "0"
 	  const std::string parent = p.second->parent();
-      if (parent.compare("pgm") != 0 )
+      if (parent.compare("pgm") != 0 && parent.compare("0") != 0)
       {
 	    return parent;
       }

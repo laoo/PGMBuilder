@@ -34,6 +34,8 @@ std::function<void( std::span<uint8_t> )> getPDecryptor( std::string const& game
 		return crypt::drgw3_prg;
 	if (gameName.starts_with("killbld"))
 		return crypt::killbld_prg;
+	if (gameName == "ddpdojblkbl")
+		return crypt::ddpdojblkbl_prg;
 
 	return {};
 }
@@ -54,12 +56,18 @@ std::function<void( std::span<uint8_t> )> getEDecryptor( std::string const& game
 		return crypt::theglad_ext;
 	if (gameName.starts_with("dmnfrnt"))
 		return crypt::dmnfrnt_ext;
-	if (gameName.starts_with("dw2001"))
+	if (gameName == "dw2001")
 		return crypt::dw2001_ext;
-	if (gameName.starts_with("svg"))
+	if (gameName == "svg")
 		return crypt::svg_ext;
+	if (gameName.starts_with("svg"))
+		return crypt::svgtw_ext;
 	if (gameName.starts_with("happy6"))
 		return crypt::happy6_ext;
+	if (gameName == "dwpc101j")
+		return crypt::dwpcj_ext;
+	if (gameName == "dwpc")
+		return crypt::dwpc_ext;
 
 	return {};
 }
@@ -70,8 +78,10 @@ std::function<void( std::span<uint8_t> )> getIDecryptor( std::string const& game
 		return crypt::theglad_int;
 	if (gameName.starts_with("dmnfrnt"))
 		return crypt::dmnfrnt_int;
-	if (gameName.starts_with("svg"))
+	if (gameName == "svg")
 		return crypt::svg_int;
+	if (gameName.starts_with("svg"))
+		return crypt::svgtw_int;
 	if (gameName.starts_with("happy6"))
 		return crypt::happy6_int;
 

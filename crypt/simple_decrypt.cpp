@@ -1407,6 +1407,17 @@ void ddp3_prg(std::span<uint8_t> rom)
 	pgm_decrypt_py2k2( rom );
 }
 
+void dwpc_ext(std::span<uint8_t> rom)
+{
+	pgm_decrypt_dwpc( rom );
+}
+
+void dwpcj_ext(std::span<uint8_t> rom)
+{
+	// same as martial masters
+	pgm_decrypt_martmast( rom );
+}
+
 void dw2001_ext(std::span<uint8_t> rom)
 {
 	// dw2001 is the same as martmast
@@ -1421,6 +1432,16 @@ void svg_ext(std::span<uint8_t> rom)
 void svg_int(std::span<uint8_t> rom)
 {
 	pgm_fixup_partial_int_rom( rom, true );
+}
+
+void svgtw_ext(std::span<uint8_t> rom)
+{
+	pgm_decrypt_svgpcb( rom );
+}
+
+void svgtw_int(std::span<uint8_t> rom)
+{
+	pgm_fixup_partial_int_rom( rom, false );
 }
 
 void happy6_ext(std::span<uint8_t> rom)
@@ -1464,6 +1485,12 @@ void kov2_ext( std::span<uint8_t> rom )
 void kov2p_ext( std::span<uint8_t> rom )
 {
 	pgm_decrypt_kov2p( rom );
+}
+
+void ddpdojblkbl_prg( std::span<uint8_t> rom )
+{
+	// bootleg, uses kovsh encryption
+	pgm_decrypt_kovsh( rom );
 }
 
 }

@@ -135,12 +135,12 @@ std::shared_ptr<MameImage> MameImage::create( std::string const& tpl )
     }
     else if ( ( romEntry.flags & 0x0f ) == ROMENTRYTYPE_CONTINUE )
     {
-      return {};
+      //return {};
       //slots.back().ops.emplace_back( romEntry.offset, romEntry.length, romEntry.flags );
     }
     else if ( ( romEntry.flags & 0x0f ) == ROMENTRYTYPE_IGNORE )
     {
-      return {};
+      //return {};
       //slots.back().ops.emplace_back( romEntry.offset, romEntry.length, romEntry.flags );
     }
   }

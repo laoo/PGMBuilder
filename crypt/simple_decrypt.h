@@ -21,6 +21,8 @@ void ddp3_prg(std::span<uint8_t> rom);
 void dw2001_ext(std::span<uint8_t> rom);
 void svg_ext(std::span<uint8_t> rom);
 void svg_int(std::span<uint8_t> rom);
+void svgtw_ext(std::span<uint8_t> rom);
+void svgtw_int(std::span<uint8_t> rom);
 void happy6_int(std::span<uint8_t> rom);
 void happy6_ext(std::span<uint8_t> rom);
 void happy6_data(std::span<uint8_t> rom);
@@ -28,5 +30,8 @@ void drgw3_prg(std::span<uint8_t> rom);
 void killbld_prg(std::span<uint8_t> rom);
 void kov2_ext( std::span<uint8_t> rom );
 void kov2p_ext( std::span<uint8_t> rom );
+void dwpc_ext(std::span<uint8_t> rom);
+void dwpcj_ext(std::span<uint8_t> rom);
+void ddpdojblkbl_prg(std::span<uint8_t> rom);
 
 }
