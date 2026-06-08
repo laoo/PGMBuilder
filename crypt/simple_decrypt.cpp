@@ -1286,9 +1286,9 @@ void pgm_descramble_happy6_2(uint8_t* src)
 ////////////////////////////////////////////////////////////////////////////////
 
 // cave is for ddp3, ket and espgal
-#include "asicsims\type1_cave.c"
-#include "asicsims\type1_puzzli2.c"
-#include "asicsims\type1_py2k2.c"
+#include "asicsims/type1_cave.c"
+#include "asicsims/type1_puzzli2.c"
+#include "asicsims/type1_py2k2.c"
 
 static void pgm_copy_int_rom(std::span<uint8_t> rom, const void *data, uint32_t size, uint8_t region)
 {
