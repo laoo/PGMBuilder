@@ -33,5 +33,14 @@ void kov2p_ext( std::span<uint8_t> rom );
 void dwpc_ext(std::span<uint8_t> rom);
 void dwpcj_ext(std::span<uint8_t> rom);
 void ddpdojblkbl_prg(std::span<uint8_t> rom);
+void ddp3_int(std::span<uint8_t> rom);
+void espgal_int(std::span<uint8_t> rom);
+void espgal_prg(std::span<uint8_t> rom);
+void ket_int(std::span<uint8_t> rom);
+void ket_prg(std::span<uint8_t> rom);
+void py2k2_prg(std::span<uint8_t> rom);
+void py2k2_int(std::span<uint8_t> rom);
+void puzzli2_prg(std::span<uint8_t> rom);
+void puzzli2_int(std::span<uint8_t> rom);
 
 }

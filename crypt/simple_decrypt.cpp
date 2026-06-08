@@ -1281,6 +1281,25 @@ void pgm_descramble_happy6_2(uint8_t* src)
 	memcpy(src, &buffer[0], 0x800000);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Reimplemented internal asic roms from mame simulation
+////////////////////////////////////////////////////////////////////////////////
+
+// cave is for ddp3, ket and espgal
+#include "asicsims\type1_cave.c"
+#include "asicsims\type1_puzzli2.c"
+#include "asicsims\type1_py2k2.c"
+
+static void pgm_copy_int_rom(std::span<uint8_t> rom, const void *data, uint32_t size, uint8_t region)
+{
+	uint8_t *romp = (uint8_t *)rom.data();
+	memset(romp, 0, 0x4000);
+	memcpy(romp, data, size);
+	romp[32] = region;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 namespace crypt
 {
 
@@ -1405,6 +1424,20 @@ void ddp3_prg(std::span<uint8_t> rom)
 {
 	// ddp3 has a BIOS image, we just want to decrypt the main game part
 	pgm_decrypt_py2k2( rom );
+
+	// This uses a move.b into sprite ram which the extneral bus cannot
+	// handle. Switch to an or.b to have the data required to write a word.
+	uint16_t *src = (uint16_t *)rom.data();
+	uint32_t count = (rom.size() / 2) - 3;
+
+	while (count--)
+	{
+		if (src[0] == 0x1619 && src[1] == 0x8619 && src[2] == 0x1143 && src[3] == 0xfffa)
+		{
+			src[2] = 0x8728;
+		}
+		src++;
+	}
 }
 
 void dwpc_ext(std::span<uint8_t> rom)
@@ -1491,6 +1524,79 @@ void ddpdojblkbl_prg( std::span<uint8_t> rom )
 {
 	// bootleg, uses kovsh encryption
 	pgm_decrypt_kovsh( rom );
+}
+
+void ddp3_int(std::span<uint8_t> rom)
+{
+	pgm_copy_int_rom( rom, out_type1_cave_bin, sizeof(out_type1_cave_bin), 0 );
+}
+
+void espgal_int(std::span<uint8_t> rom)
+{
+	pgm_copy_int_rom( rom, out_type1_cave_bin, sizeof(out_type1_cave_bin), 0 );
+}
+
+void espgal_prg(std::span<uint8_t> rom)
+{
+	pgm_decrypt_espgaluda( rom );
+
+	// This uses a move.b into sprite ram which the extneral bus cannot
+	// handle. Switch to an or.b to have the data required to write a word.
+	uint16_t *src = (uint16_t *)rom.data();
+	uint32_t count = (rom.size() / 2) - 3;
+
+	while (count--)
+	{
+		if (src[0] == 0x1619 && src[1] == 0x8619 && src[2] == 0x1143 && src[3] == 0xfffa)
+		{
+			src[2] = 0x8728;
+		}
+		src++;
+	}
+}
+
+void ket_int(std::span<uint8_t> rom)
+{
+	pgm_copy_int_rom( rom, out_type1_cave_bin, sizeof(out_type1_cave_bin), 0 );
+}
+
+void ket_prg(std::span<uint8_t> rom)
+{
+	pgm_decrypt_ketsui( rom );
+
+	// This uses a move.b into sprite ram which the extneral bus cannot
+	// handle. Switch to an or.b to have the data required to write a word.
+	uint16_t *src = (uint16_t *)rom.data();
+	uint32_t count = (rom.size() / 2) - 3;
+
+	while (count--)
+	{
+		if (src[0] == 0x1619 && src[1] == 0x8619 && src[2] == 0x1143 && src[3] == 0xfffa)
+		{
+			src[2] = 0x8728;
+		}
+		src++;
+	}
+}
+
+void py2k2_prg(std::span<uint8_t> rom)
+{
+	pgm_decrypt_py2k2( rom );
+}
+
+void py2k2_int(std::span<uint8_t> rom)
+{
+	pgm_copy_int_rom( rom, out_type1_py2k2_bin, sizeof(out_type1_py2k2_bin), 1 );
+}
+
+void puzzli2_prg(std::span<uint8_t> rom)
+{
+	pgm_decrypt_puzzli2( rom );
+}
+
+void puzzli2_int(std::span<uint8_t> rom)
+{
+	pgm_copy_int_rom( rom, out_type1_puzzli2_bin, sizeof(out_type1_puzzli2_bin), 1 );
 }
 
 }

@@ -24,7 +24,8 @@ enum AsicClass
   pgm_arm_type1_state,
   pgm_arm_type2_state,
   pgm_arm_type3_state,
-  pgm_028_025_state
+  pgm_028_025_state,
+  pgm_arm_type1b_state
 };
 
 enum
