@@ -1,27 +1,31 @@
 #include "crypt.hpp"
-#include "crypt/kov/kov_deprotect.hpp"
-#include "crypt/orlegend/orlegend_deprotect.hpp"
 #include "crypt/simple_decrypt.h"
 
 std::function<void( std::span<uint8_t> )> getPDecryptor( std::string const& gameName )
 {
 	if (gameName.starts_with("kovsh"))
 		return crypt::kovsh_prg;
-	if (gameName.starts_with("kov") && !gameName.starts_with("kov2"))
+	if (gameName.starts_with("kov") && !gameName.starts_with("kov2") && !gameName.starts_with("kovsgqyz"))
 		return crypt::kov_prg;
-	if (gameName.starts_with("orlegend"))
-		return crypt::orlegend_prg;
 	if (gameName.starts_with("photoy2k"))
 		return crypt::photoy2k_prg;
 	if (gameName.starts_with("py2k2"))
 		return crypt::py2k2_prg;
 	if (gameName == "puzzli2")
 		return crypt::puzzli2_prg;
+	if (gameName == "puzzli2s")
+		return crypt::puzzli2_prg;
 	if (gameName == "espgal")
 		return crypt::espgal_prg;
 	if (gameName.starts_with("ket") && gameName != "ketbl")
 		return crypt::ket_prg;
-
+	if (gameName.starts_with("oldsplus"))
+		return crypt::oldsplus_prg;
+	if (gameName.starts_with("puzlstar"))
+		return crypt::puzlstar_prg;
+	if (gameName.starts_with("pgm3in1"))
+		return crypt::pgm3in1_prg;
+	
 	// Dragon World 2 Variants, patching for IGS012
 	if (gameName == "drgw2")
 		return crypt::drgw2_prg;
@@ -39,9 +43,9 @@ std::function<void( std::span<uint8_t> )> getPDecryptor( std::string const& game
 		return crypt::ddpdojblkbl_prg;
 	if ((gameName == "ddp3") || (gameName.starts_with("ddpdoj") && gameName != "ddpdojp"))
 		return crypt::ddp3_prg;
-	if (gameName.starts_with("drgw3"))
+	if (gameName.starts_with("drgw3") || gameName.starts_with("dwex"))
 		return crypt::drgw3_prg;
-	if (gameName.starts_with("killbld"))
+	if (gameName.starts_with("killbld") && (gameName != "killbldp"))
 		return crypt::killbld_prg;
 
 	return {};
@@ -75,12 +79,16 @@ std::function<void( std::span<uint8_t> )> getEDecryptor( std::string const& game
 		return crypt::dwpcj_ext;
 	if (gameName == "dwpc")
 		return crypt::dwpc_ext;
+	if (gameName.starts_with("pgm3in1"))
+		return crypt::py2k2_int;
 
 	return {};
 }
 
 std::function<void( std::span<uint8_t> )> getIDecryptor( std::string const& gameName )
 {
+	if (gameName.starts_with("martmast"))
+		return crypt::martmast_int;
 	if (gameName.starts_with("theglad"))
 		return crypt::theglad_int;
 	if (gameName.starts_with("dmnfrnt"))
@@ -95,12 +103,22 @@ std::function<void( std::span<uint8_t> )> getIDecryptor( std::string const& game
 		return crypt::py2k2_int;
 	if (gameName == "puzzli2")
 		return crypt::puzzli2_int;
+	if (gameName == "puzzli2s")
+		return crypt::puzzli2s_int;
 	if (gameName == "svg")
 		return crypt::svg_int;
 	if (gameName.starts_with("svg"))
 		return crypt::svgtw_int;
 	if (gameName.starts_with("happy6"))
 		return crypt::happy6_int;
+	if (gameName.starts_with("oldsplus"))
+		return crypt::oldsplus_int;
+	if (gameName.starts_with("kov") && !gameName.starts_with("kov2") && !gameName.starts_with("kovsh"))
+		return crypt::kov_int;
+	if (gameName.starts_with("puzlstar"))
+		return crypt::puzlstar_int;
+	if (gameName.starts_with("pgm3in1"))
+		return crypt::py2k2_int;
 
 	return {};
 }

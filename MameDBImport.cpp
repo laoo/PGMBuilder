@@ -1,9 +1,11 @@
 #include "MameDB.hpp"
+#include "Regions.hpp"
 
 namespace mameDB
 {
 
 #define ROM_NAME(name)                              rom_##name
+#define REGION_NAME(name)							region_##name
 #define ROM_START(name)                             static const RomEntry ROM_NAME(name)[] = {
 #define ROM_END                                     { nullptr, nullptr, 0, 0, ROMENTRYTYPE_END } };
 #define ROM_REGION(length,tag,flags)                { tag, nullptr, 0, length, ROMENTRYTYPE_REGION | (flags) },
@@ -36,9 +38,9 @@ ROM_END
 
 #define GAME_NAME(name)         driver_##name
 
-int registerGame( RomEntry const* romEntry, char const* name, char const* parentName, char const* fullName, char const* company, char const* year, AsicClass asicClass );
+int registerGame( RomEntry const* romEntry, char const* name, char const* parentName, char const* fullName, char const* company, char const* year, AsicClass asicClass, RegionSettings *regionInfo );
 
-#define GAME(YEAR, NAME, PARENT, MACHINE, INPUT, CLASS, INIT, MONITOR, COMPANY, FULLNAME, FLAGS) int GAME_NAME(NAME) = registerGame( ROM_NAME(NAME), #NAME, #PARENT, FULLNAME, COMPANY, #YEAR, CLASS );
+#define GAME(YEAR, NAME, PARENT, MACHINE, INPUT, CLASS, INIT, MONITOR, COMPANY, FULLNAME, FLAGS) int GAME_NAME(NAME) = registerGame( ROM_NAME(NAME), #NAME, #PARENT, FULLNAME, COMPANY, #YEAR, CLASS, &REGION_NAME(INPUT) );
 
 #include "MameGames.hpp"
 

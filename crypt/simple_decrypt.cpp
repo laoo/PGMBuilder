@@ -1288,7 +1288,12 @@ void pgm_descramble_happy6_2(uint8_t* src)
 // cave is for ddp3, ket and espgal
 #include "asicsims/type1_cave.c"
 #include "asicsims/type1_puzzli2.c"
+#include "asicsims/type1_puzzli2s.c"
 #include "asicsims/type1_py2k2.c"
+#include "asicsims/type3_demonfront.c"
+#include "asicsims/type1_oldsplus.c"
+#include "asicsims/type1_kovplus.c"
+#include "asicsims/type1_puzlstar.c"
 
 static void pgm_copy_int_rom(std::span<uint8_t> rom, const void *data, uint32_t size, uint8_t region)
 {
@@ -1313,9 +1318,27 @@ void photoy2k_prg( std::span<uint8_t> rom )
 	pgm_decrypt_photoy2k( rom );
 }
 
+void martmast_int(std::span<uint8_t> rom)
+{
+	// as were patching the external rom we need to also patch the external
+	// rom checksum error
+	uint32_t *src = (uint32_t *)rom.data();
+	src[0x35c/4] = 0xE1A00000;
+	src[0x360/4] = 0xE1A00000;
+	src[0x364/4] = 0xE1A00000;
+	src[0x368/4] = 0xE1A00000;
+}
+
 void martmast_ext(std::span<uint8_t> rom)
 {
 	pgm_decrypt_martmast( rom );
+
+	// remove byte access to external shared ram during init as this wipes
+	// the region and serves no purpose
+	uint16_t *src = (uint16_t *)rom.data();
+	src[0x31a/2] = 0x46c0;
+	src[0x31c/2] = 0x46c0;
+	src[0x322/2] = 0x46c0;
 }
 
 void ddp2_ext(std::span<uint8_t> rom)
@@ -1345,7 +1368,7 @@ void dmnfrnt_ext(std::span<uint8_t> rom)
 
 void dmnfrnt_int(std::span<uint8_t> rom)
 {
-	pgm_create_dummy_internal_arm_region( rom, 0x4000 );
+	pgm_copy_int_rom( rom, out_type3_demonfront_bin, sizeof(out_type3_demonfront_bin), 5 );
 }
 
 void drgw2_prg(std::span<uint8_t> rom)
@@ -1586,7 +1609,8 @@ void py2k2_prg(std::span<uint8_t> rom)
 
 void py2k2_int(std::span<uint8_t> rom)
 {
-	pgm_copy_int_rom( rom, out_type1_py2k2_bin, sizeof(out_type1_py2k2_bin), 1 );
+	// default region to world, custom rom
+	pgm_copy_int_rom( rom, out_type1_py2k2_bin, sizeof(out_type1_py2k2_bin), 3 );
 }
 
 void puzzli2_prg(std::span<uint8_t> rom)
@@ -1596,7 +1620,52 @@ void puzzli2_prg(std::span<uint8_t> rom)
 
 void puzzli2_int(std::span<uint8_t> rom)
 {
-	pgm_copy_int_rom( rom, out_type1_puzzli2_bin, sizeof(out_type1_puzzli2_bin), 1 );
+	// default region to world, custom rom
+	pgm_copy_int_rom( rom, out_type1_puzzli2_bin, sizeof(out_type1_puzzli2_bin), 5 );
+}
+
+void puzzli2s_int(std::span<uint8_t> rom)
+{
+	// default region to world, custom rom
+	pgm_copy_int_rom( rom, out_type1_puzzli2s_bin, sizeof(out_type1_puzzli2s_bin), 5 );
+}
+
+void oldsplus_int(std::span<uint8_t> rom)
+{
+	// default region to world, custom rom
+	pgm_copy_int_rom( rom, out_type1_oldsplus_bin, sizeof(out_type1_oldsplus_bin), 5 );
+}
+
+void oldsplus_prg(std::span<uint8_t> rom)
+{
+	pgm_decrypt_oldsplus( rom );
+}
+
+void kov_int(std::span<uint8_t> rom)
+{
+	// default region to world, custom rom
+	pgm_copy_int_rom( rom, out_type1_kovplus_bin, sizeof(out_type1_kovplus_bin), 5 );
+}
+
+void kov_prg(std::span<uint8_t> rom)
+{
+	pgm_decrypt_kov( rom );
+}
+
+void puzlstar_int(std::span<uint8_t> rom)
+{
+	// default region to world, custom rom
+	pgm_copy_int_rom( rom, out_type1_puzlstar_bin, sizeof(out_type1_puzlstar_bin), 5 );
+}
+
+void puzlstar_prg(std::span<uint8_t> rom)
+{
+	pgm_decrypt_puzlstar( rom );
+}
+
+void pgm3in1_prg(std::span<uint8_t> rom)
+{
+	pgm_decrypt_pgm3in1( rom );
 }
 
 }

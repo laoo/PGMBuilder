@@ -25,8 +25,6 @@ pgm::Header buildHeader( GameEntry const& entry )
   header.info.version = std::byteswap( pgm::IGSPGM_VERSION );
   header.info.infoSize = sizeof( pgm::Header::Info );
 
-  std::string_view company{  };
-  std::copy_n( entry.company, std::min( strlen( entry.company ), sizeof( pgm::Header::Info::manufacturer ) ), header.info.manufacturer );
   std::copy_n( entry.name.data(), std::min( entry.name.size(), sizeof( pgm::Header::Info::shortName ) ), header.info.shortName );
   std::copy_n( entry.year, std::min( strlen( entry.year ), sizeof( pgm::Header::Info::year ) ), header.info.year );
   header.info.hardware = entry.asicClass;
@@ -109,7 +107,8 @@ std::shared_ptr<MameImage> MameImage::create( std::string const& tpl )
       {
         type = RomType::EXT;
       }
-      else if ( "igs022"sv == romEntry.name )
+	  // igs022 and igs028 are very similar and treated the same for ROM
+      else if ( "igs022"sv == romEntry.name || "igs028"sv == romEntry.name )
       {
         type = RomType::I22;
       }
@@ -198,10 +197,6 @@ const std::string& MameImage::name() const
 void MameImage::build( std::filesystem::path const& out ) const
 {
   pgm::Header header = buildHeader( *mGameEntry );
-  header.info.entries = 0;
-  header.info.entriesCount = 0;
-  header.info.asciiLongName = 0;
-  header.info.utf8LongName = 0;
 
   struct ROMSection
   {
@@ -253,6 +248,7 @@ void MameImage::build( std::filesystem::path const& out ) const
 
   size_t headerCursor = sizeof( pgm::Header::Info );
 
+  // rom entries
   if ( !entries.empty() )
   {
     size_t const entriesBytes = entries.size() * sizeof( pgm::Entry );
@@ -274,6 +270,34 @@ void MameImage::build( std::filesystem::path const& out ) const
     headerCursor += entriesBytes;
   }
 
+	// region information block
+	if (mGameEntry->regionInfo->regions() != 0)
+	{
+		std::span<const uint8_t> regionData = mGameEntry->regionInfo->toSpan();
+		header.info.regionOffset = headerCursor;
+		headerCursor +=regionData.size();
+		
+		fout.seekp( header.info.regionOffset );
+		fout.write( (const char *)regionData.data(),regionData.size() );
+	}
+
+	// manufacturer
+	if (mGameEntry->company != 0)
+	{
+		size_t longNameBytes = strlen(mGameEntry->company) + 1;
+		if ( headerCursor + longNameBytes > sizeof( pgm::Header ) )
+		{
+			throw Ex{} << "Manufacturer name does not fit in header";
+		}
+
+		header.info.manufacturerLongName = headerCursor;
+		headerCursor += longNameBytes;
+
+		fout.seekp( header.info.manufacturerLongName );
+		fout.write( mGameEntry->company, longNameBytes );
+	}
+
+  // long name strings
   std::string_view longName = mGameEntry->fullName ? std::string_view{ mGameEntry->fullName } : std::string_view{};
   if ( !longName.empty() )
   {
@@ -290,6 +314,7 @@ void MameImage::build( std::filesystem::path const& out ) const
     }
 
     uint32_t offset = static_cast<uint32_t>( headerCursor );
+	headerCursor += longNameBytes;
     if ( ascii )
     {
       header.info.asciiLongName = offset;
@@ -313,7 +338,7 @@ void MameImage::build( std::filesystem::path const& out ) const
 
 RomAssembly MameImage::assembleROM( RomType type ) const
 {
-	static const char *apROMTypeName[] = { "", "Program", "ASIC27A Internal", "ASIC27A External", "Tile", "Sprite Mask", "Sprite Colour", "Audio", "IGS022", "IGS025"};
+	static const char *apROMTypeName[] = { "", "Program", "ASIC27A Internal", "ASIC27A External", "Tile", "Sprite Mask", "Sprite Colour", "Audio", "IGS022/8", "IGS025"};
   std::shared_ptr<RawROM> rawRom;
 
   // pre-parse INT ROMs and make sure there is an entry for NO_DUMPs

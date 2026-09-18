@@ -122,7 +122,6 @@ void manualBuild( ProgramOptions const& opt )
   header.info.version = std::byteswap( pgm::IGSPGM_VERSION );
   header.info.infoSize = sizeof( pgm::Header::Info );
 
-  copyFixedField( info.manufacturer, header.info.manufacturer, "manufacturer" );
   copyFixedField( info.shortName, header.info.shortName, "short-name" );
   copyFixedField( info.year, header.info.year, "year" );
 

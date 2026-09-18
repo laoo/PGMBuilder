@@ -2,6 +2,7 @@
 
 #include "RomAssembly.hpp"
 #include "ImageCache.hpp"
+#include "Regions.hpp"
 
 namespace mameDB
 {
@@ -67,6 +68,7 @@ struct GameEntry
   char const* company;
   char const* year;
   AsicClass asicClass;
+  RegionSettings *regionInfo;
 };
 
 struct GameEntryComparer

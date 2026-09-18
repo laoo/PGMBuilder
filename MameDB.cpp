@@ -1,6 +1,7 @@
 #include "MameDB.hpp"
 #include "ImageCache.hpp"
 #include "RomAssembly.hpp"
+#include "Regions.hpp"
 
 namespace mameDB
 {
@@ -24,9 +25,9 @@ uint32_t parseCRC( char const* s )
   return hash;
 }
 
-int registerGame( RomEntry const* romEntry, char const* name, char const* parentName, char const* fullName, char const* company, char const* year, AsicClass asicClass )
+int registerGame( RomEntry const* romEntry, char const* name, char const* parentName, char const* fullName, char const* company, char const* year, AsicClass asicClass, RegionSettings *regionInfo)
 {
-  auto gameEntry = std::make_shared<GameEntry>( romEntry, std::string{ name }, std::string{ parentName }, fullName, company, year, asicClass );
+  auto gameEntry = std::make_shared<GameEntry>( romEntry, std::string{ name }, std::string{ parentName }, fullName, company, year, asicClass, regionInfo );
 
   gGames.insert( { gameEntry->name, gameEntry } );
 

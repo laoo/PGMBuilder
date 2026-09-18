@@ -24,9 +24,8 @@ add_executable( PGMBuilder
   MameImage.cpp
   RomAssembly.cpp
   CustomData.cpp
+  Regions.cpp
   crypt.cpp
-  crypt/kov/kov_deprotect.cpp
-  crypt/orlegend/orlegend_deprotect.cpp
   crypt/simple_decrypt.cpp)
 
 target_include_directories( PGMBuilder PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libextern/zip/src )

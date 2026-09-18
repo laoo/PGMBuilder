@@ -5,6 +5,7 @@ namespace crypt
 void kovsh_prg( std::span<uint8_t> rom );
 void photoy2k_prg( std::span<uint8_t> rom );
 void martmast_ext(std::span<uint8_t> rom);
+void martmast_int(std::span<uint8_t> rom);
 void ddp2_ext(std::span<uint8_t> rom);
 void killbldp_ext(std::span<uint8_t> rom);
 void theglad_ext(std::span<uint8_t> rom);
@@ -42,5 +43,13 @@ void py2k2_prg(std::span<uint8_t> rom);
 void py2k2_int(std::span<uint8_t> rom);
 void puzzli2_prg(std::span<uint8_t> rom);
 void puzzli2_int(std::span<uint8_t> rom);
+void puzzli2s_int(std::span<uint8_t> rom);
+void oldsplus_int(std::span<uint8_t> rom);
+void oldsplus_prg(std::span<uint8_t> rom);
+void kov_int(std::span<uint8_t> rom);
+void kov_prg(std::span<uint8_t> rom);
+void puzlstar_int(std::span<uint8_t> rom);
+void puzlstar_prg(std::span<uint8_t> rom);
+void pgm3in1_prg(std::span<uint8_t> rom);
 
 }
