@@ -1,4 +1,5 @@
 #include "Regions.hpp"
+#include <string.h>
 
 using namespace pgm;
 
