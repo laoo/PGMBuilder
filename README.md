@@ -50,11 +50,11 @@ out/build/<preset>/PGMBuilder
 
 ## CI (GitHub Actions)
 
-Repository includes a GitHub Actions workflow that builds on:
+Repository includes a GitHub Actions workflow that builds release binaries on:
 
-- Ubuntu
-- macOS
-- Windows
+- Linux x64 (Ubuntu; libstdc++ linked statically)
+- macOS universal (Apple silicon and Intel, macOS 11 or later)
+- Windows x64 (MSVC; runtime linked statically)
 
 It runs on every push and pull request.
 
@@ -62,15 +62,28 @@ It runs on every push and pull request.
 
 Each workflow run uploads build outputs as downloadable artifacts:
 
-- `PGMBuilder-ubuntu`
-- `PGMBuilder-macos`
-- `PGMBuilder-windows`
+- `PGMBuilder-linux-x64`
+- `PGMBuilder-macos-universal`
+- `PGMBuilder-windows-x64`
 
 To download:
 
 1. Open GitHub repository `Actions` tab.
 2. Open a finished `Build` workflow run.
 3. In the `Artifacts` section, download the package for your platform.
+
+### Releases
+
+Pushing a tag that starts with `v` builds the three packages and publishes them as a GitHub
+release named after the tag, with notes generated from the commits since the previous release:
+
+```bash
+git tag v0.22
+git push origin v0.22
+```
+
+Each package holds the binary, `README.md` and `LICENSE`. The macOS binary is not notarized; if
+macOS refuses to open it, run `xattr -d com.apple.quarantine PGMBuilder`.
 
 ## Usage
 
