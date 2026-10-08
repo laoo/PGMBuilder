@@ -53,7 +53,7 @@ out/build/<preset>/PGMBuilder
 Repository includes a GitHub Actions workflow that builds release binaries on:
 
 - Linux x64 (Ubuntu; libstdc++ linked statically)
-- macOS universal (Apple silicon and Intel, macOS 11 or later)
+- macOS arm64 (Apple silicon, macOS 11 or later)
 - Windows x64 (MSVC; runtime linked statically)
 
 It runs on every push and pull request.
@@ -63,7 +63,7 @@ It runs on every push and pull request.
 Each workflow run uploads build outputs as downloadable artifacts:
 
 - `PGMBuilder-linux-x64`
-- `PGMBuilder-macos-universal`
+- `PGMBuilder-macos-arm64`
 - `PGMBuilder-windows-x64`
 
 To download:
