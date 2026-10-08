@@ -7,7 +7,7 @@
 namespace pgm
 {
 
-static constexpr uint16_t IGSPGM_VERSION = 0x0021;
+static constexpr uint16_t IGSPGM_VERSION = 0x0022;
 
 enum struct RomType : uint32_t
 {
@@ -83,6 +83,14 @@ enum AsicClass
   pgm_028_025_state
 };
 
+// bits of Header::Info::flags
+
+enum InfoFlags : uint32_t
+{
+  InfoFlags_Vertical = 1 << 0  // made for a monitor turned on its side (TATE, MAME's ROT270):
+                               // the picture is to be shown turned 90 degrees anticlockwise
+};
+
 struct Header
 {
   struct Info
@@ -102,7 +110,8 @@ struct Header
     uint32_t cover;                   //byte offset to the CoverImage structure
     uint32_t screenshotOffsets;       //byte offset to the table of offsets to ScreenshotImage structures
     uint32_t screenshotOffsetsCount;  //number of entries in the table of offsets to ScreenshotImage structures
-	uint32_t regionOffset;            //offset to RegionInfo + Region table (may be zero to indicate none)
+    uint32_t regionOffset;            //offset to RegionInfo + Region table (may be zero to indicate none)
+    uint32_t flags;                   //InfoFlags; added in version 0x0022, absent when infoSize is smaller
   } info;
 
   uint8_t filler[1024-sizeof(info)];   //fill to 1024

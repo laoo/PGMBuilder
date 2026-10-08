@@ -69,6 +69,7 @@ struct GameEntry
   char const* year;
   AsicClass asicClass;
   RegionSettings *regionInfo;
+  uint32_t flags;                 // pgm::InfoFlags
 };
 
 struct GameEntryComparer

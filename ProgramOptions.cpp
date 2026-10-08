@@ -104,6 +104,7 @@ ProgramOptions::ProgramOptions( int argc, char const* argv[] ) : mOpt{ std::make
     ( "utf8-long-name", "UTF-8 long name string for header info", cxxopts::value<std::string>(), "text" )
     ( "year", "year string for header info", cxxopts::value<std::string>(), "text" )
     ( "hardware", "hardware value for header info", cxxopts::value<std::string>(), "value" )
+    ( "vertical", "mark the game as vertical (TATE) in header info" )
     ;
 
   mOpt->
@@ -192,9 +193,15 @@ ProgramOptions::ProgramOptions( int argc, char const* argv[] ) : mOpt{ std::make
     mManualInfo.hardware = parseHardware( ( *mRes )["hardware"].as<std::string>() );
   }
 
+  if ( mRes->count( "vertical" ) > 0 )
+  {
+    mManualInfo.flags |= pgm::InfoFlags_Vertical;
+  }
+
   bool hasManualInfoOption = !mManualInfo.manufacturer.empty() || !mManualInfo.shortName.empty() ||
                              !mManualInfo.asciiLongName.empty() || !mManualInfo.utf8LongName.empty() ||
-                             !mManualInfo.year.empty() || mRes->count( "hardware" ) > 0;
+                             !mManualInfo.year.empty() || mRes->count( "hardware" ) > 0 ||
+                             mRes->count( "vertical" ) > 0;
 
   if ( mRomMode && mRes->count( "input" ) )
   {
@@ -208,7 +215,7 @@ ProgramOptions::ProgramOptions( int argc, char const* argv[] ) : mOpt{ std::make
 
   if ( !mRomMode && hasManualInfoOption )
   {
-    throw Ex{} << "Options --manufacturer, --short-name, --ascii-long-name, --utf8-long-name, --year and --hardware are only available in manual ROM mode.";
+    throw Ex{} << "Options --manufacturer, --short-name, --ascii-long-name, --utf8-long-name, --year, --hardware and --vertical are only available in manual ROM mode.";
   }
 
   if ( mRomMode )

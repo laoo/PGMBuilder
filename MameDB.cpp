@@ -25,9 +25,9 @@ uint32_t parseCRC( char const* s )
   return hash;
 }
 
-int registerGame( RomEntry const* romEntry, char const* name, char const* parentName, char const* fullName, char const* company, char const* year, AsicClass asicClass, RegionSettings *regionInfo)
+int registerGame( RomEntry const* romEntry, char const* name, char const* parentName, char const* fullName, char const* company, char const* year, AsicClass asicClass, RegionSettings *regionInfo, uint32_t flags )
 {
-  auto gameEntry = std::make_shared<GameEntry>( romEntry, std::string{ name }, std::string{ parentName }, fullName, company, year, asicClass, regionInfo );
+  auto gameEntry = std::make_shared<GameEntry>( romEntry, std::string{ name }, std::string{ parentName }, fullName, company, year, asicClass, regionInfo, flags );
 
   gGames.insert( { gameEntry->name, gameEntry } );
 

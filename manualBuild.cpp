@@ -126,6 +126,7 @@ void manualBuild( ProgramOptions const& opt )
   copyFixedField( info.year, header.info.year, "year" );
 
   header.info.hardware = info.hardware;
+  header.info.flags = info.flags;
   header.info.genre = 0;
   header.info.entries = 0;
   header.info.entriesCount = 0;

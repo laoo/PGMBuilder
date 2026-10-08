@@ -133,6 +133,7 @@ Optional header info parameters for manual ROM mode:
 - `--utf8-long-name=<text>`
 - `--year=<text>`
 - `--hardware=<value>`
+- `--vertical`: mark the game as vertical (see [Header flags](#header-flags))
 
 Accepted `--hardware` values:
 
@@ -177,5 +178,22 @@ PGMBuilder \
   --ascii-long-name="Custom Build" \
   --year="2026" \
   --hardware=state \
+  --vertical \
   --output /tmp/custom.pgm
 ```
+
+## Header flags
+
+Since format version `0x0022` the header info (`pgm::Header::Info` in `pgm.hpp`) ends with a
+32-bit `flags` field, and `infoSize` grows from 76 to 80 bytes. A reader finds the field only
+when `infoSize` covers it; in older images every flag is clear.
+
+| Bit | Name | Meaning |
+|---|---|---|
+| 0 | `InfoFlags_Vertical` | The game was made for a monitor turned on its side (TATE). The board draws its 448x224 picture lying with its top at the left; it is shown upright turned 90 degrees anticlockwise (MAME's `ROT270`). |
+
+Other bits are reserved and written as zero.
+
+In ZIP mode the vertical flag comes from MAME's driver list: it is set for every set MAME draws
+`ROT270`, which on PGM are DoDonPachi II, DoDonPachi III, Ketsui and Espgaluda with their clones.
+In manual ROM mode it is set by `--vertical`.

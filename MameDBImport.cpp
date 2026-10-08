@@ -38,13 +38,17 @@ ROM_END
 
 #define GAME_NAME(name)         driver_##name
 
-int registerGame( RomEntry const* romEntry, char const* name, char const* parentName, char const* fullName, char const* company, char const* year, AsicClass asicClass, RegionSettings *regionInfo );
+int registerGame( RomEntry const* romEntry, char const* name, char const* parentName, char const* fullName, char const* company, char const* year, AsicClass asicClass, RegionSettings *regionInfo, uint32_t flags );
 
-#define GAME(YEAR, NAME, PARENT, MACHINE, INPUT, CLASS, INIT, MONITOR, COMPANY, FULLNAME, FLAGS) int GAME_NAME(NAME) = registerGame( ROM_NAME(NAME), #NAME, #PARENT, FULLNAME, COMPANY, #YEAR, CLASS, &REGION_NAME(INPUT) );
+// MAME's monitor orientations PGM games use, as header flags
+#define ROT0                    0
+#define ROT270                  pgm::InfoFlags_Vertical
+
+#define GAME(YEAR, NAME, PARENT, MACHINE, INPUT, CLASS, INIT, MONITOR, COMPANY, FULLNAME, FLAGS) int GAME_NAME(NAME) = registerGame( ROM_NAME(NAME), #NAME, #PARENT, FULLNAME, COMPANY, #YEAR, CLASS, &REGION_NAME(INPUT), MONITOR );
 
 #include "MameGames.hpp"
 
 // entry to insert PGM ROMS that are on the PGM motherboards
-GAME( 1997, pgm, pgm, pgm, ddp3, pgm_state, init_pgm, ROT270, nullptr, nullptr, 0 )
+GAME( 1997, pgm, pgm, pgm, ddp3, pgm_state, init_pgm, ROT0, nullptr, nullptr, 0 )
 
 }

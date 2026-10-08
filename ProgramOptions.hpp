@@ -25,6 +25,7 @@ public:
     std::string utf8LongName;
     std::string year;
     pgm::AsicClass hardware = pgm::pgm_state;
+    uint32_t flags = 0;             // pgm::InfoFlags
   };
 
   ProgramOptions( int argc, char const* argv[] );

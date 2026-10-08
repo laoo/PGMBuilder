@@ -28,6 +28,7 @@ pgm::Header buildHeader( GameEntry const& entry )
   std::copy_n( entry.name.data(), std::min( entry.name.size(), sizeof( pgm::Header::Info::shortName ) ), header.info.shortName );
   std::copy_n( entry.year, std::min( strlen( entry.year ), sizeof( pgm::Header::Info::year ) ), header.info.year );
   header.info.hardware = entry.asicClass;
+  header.info.flags = entry.flags;
 
   return header;
 }
