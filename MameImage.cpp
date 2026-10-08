@@ -125,11 +125,12 @@ std::shared_ptr<MameImage> MameImage::create( std::string const& tpl )
       ROMSlot slot{ type };
 	  
 	  // when hashdata[0] == '!' this means there is no dump, this isn't the end
-	  // of the world so allow processing to continue
+	  // of the world so allow processing to continue with crc 0
+	  // (NO_DUMP is the bare string "!", so nothing may be read past it)
       if ( romEntry.hashdata == nullptr )
         return {};
-      
-	  slot.crc = parseCRC( romEntry.hashdata + ( romEntry.hashdata[0] == 'R' ? 1 : 2 ) );
+
+	  slot.crc = romEntry.hashdata[0] == 'R' ? parseCRC( romEntry.hashdata + 1 ) : 0;
       slot.ops.emplace_back( romEntry.offset, romEntry.length, romEntry.flags );
       slots.push_back( slot );
     }
