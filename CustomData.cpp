@@ -436,7 +436,7 @@ static const SIGS025Settings<7> drgw3_igs025_data =
 		},
 		// region 7, Singapore, $14ce76
 		{
-			.nRegionCode = 0x06,
+			.nRegionCode = 0x07,
 			.anGameId = { 0x00, 0x06, 0x00, 0x07 },
 			.anTable =
 			{ 
